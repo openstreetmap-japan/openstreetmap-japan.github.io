@@ -50,6 +50,9 @@ export const pages = defineCollection({
         // 明示的にURLを切りたい場合に使用
         slug: z.string().optional(),
 
+        // 旧 Drupal の /node/xxx を受けるためのID
+        legacy_node_id: z.string().optional(),
+
         // ナビ表示順など (任意)
         order: z.number().optional(),
 

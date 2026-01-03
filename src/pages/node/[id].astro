@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content";
+
+// /node/<id>/ を「eventsとpages」の両方から生成する
+export async function getStaticPaths() {
+    const events = await getCollection("events", ({ data }) => !data.draft)
+    const pages = await getCollection("pages")
+    // event node id = event slug（1038.md → slug=1038）
+    const eventPaths = events.map((e) => ({
+        params: { id: e.slug },
+        props: { to: `../../events/${e.slug}/` },
+    }))
+
+    // page node id = legacy_node_id（任意）
+    const pagePaths = pages
+        .filter((p) => !!p.data.legacy_node_id)
+        .map((p) => {
+            const id = p.data.legacy_node_id!
+            // pages の新URL：slug があればそれ、なければファイルslug
+            const newPath = p.data.slug ?? p.slug;
+            return {
+                params: { id },
+                props: { to: `../../${newPath.replace(/^\/+/, "")}/` },
+            }
+        })
+
+    // 重複（同じ node id が events と pages にいる）を弾く（events優先）
+    const seen = new Set(eventPaths.map((x) => x.params.id))
+    const pagePathsDedup = pagePaths.filter((x) => !seen.has(x.params.id))
+
+    return [...eventPaths, ...pagePathsDedup]
+}
+
+const { to } = Astro.props as { to: string }
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0;url=${to}`} />
+    <link rel="canonical" href={to} />
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <p>
+      移動します：<a href={to}>{to}</a>
+    </p>
+  </body>
+</html>
