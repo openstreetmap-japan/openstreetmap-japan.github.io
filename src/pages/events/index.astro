@@ -1,0 +1,50 @@
+---
+import { getCollection } from "astro:content"
+import { effect } from "astro:schema"
+
+
+const events = (await getCollection("events", ({ data }) => !data.draft))
+    .map((e) => ({
+        ...e,
+        startDate: new Date(e.data.start),
+    }))
+    .sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+---
+
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>イベント一覧 - OpenStreetMap Japan</title>
+    </head>
+
+    <body>
+        <main style="max-width: 860px; margin: auto; padding: 24px;">
+            <h1>イベント一覧</h1>
+
+            <p>
+                <a href="/events/map/">地図で見る</a>
+            </p>
+
+            <ul>
+                {events.map((e)=> {
+                    const start = new Date(e.data.start)
+                    const end = e.data.end ? new Date(e.data.end) : null
+
+                    return (
+                        <li style="margin: 16px 0;">
+                            <a href={`/events/${e.slug}/`}>
+                                <strong>{e.data.title}</strong>
+                            </a>
+                            <div>
+                                {start.toLocaleDateString("ja-JP")},
+                                {end ? ` 〜 ${end.toLocaleDateString("ja-JP")}` : ""}
+                                {e.data.venue_text ? ` @ ${e.data.venue_text}` : ""}
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
+        </main>
+    </body>
+</html>

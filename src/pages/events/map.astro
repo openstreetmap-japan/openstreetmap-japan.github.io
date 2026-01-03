@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content"
+import EventMap from "../../components/EventMap"
+
+const events = await getCollection("events", ({ data }) => !data.draft)
+
+// longitide, latitude があれば地図へ
+const points = events
+    .filter((e) => typeof e.data.longitude === "number" && typeof e.data.latitude === "number" )
+    .map((e) => ({
+        id: e.slug,
+        title: e.data.title,
+        latitude: e.data.latitude!,
+        longitude: e.data.longitude!,
+        href: `/events/${e.slug}/`,
+        venue_text: e.data.venue_text,
+        start: e.data.start,
+    }))
+---
+
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>イベント地図 - OpenStreetMap Japan</title>
+    </head>
+
+    <body>
+        <main style="max-width: 860px; margin: auto; padding: 24px;">
+            <p><a href="/events/">← イベント一覧</a></p>
+            <h1>イベント地図</h1>
+
+            { points.length === 0 ? (
+                <p>地図上に表示するイベントがありません。</p>
+            ) : (
+                <EventMap {points} client:only="react" />
+            )}
+        </main>
+    </body>
+</html>

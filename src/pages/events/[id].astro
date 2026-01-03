@@ -1,0 +1,78 @@
+---
+import { getCollection } from "astro:content"
+
+export async function getStaticPaths() {
+    const events = await getCollection("events", ({ data }) => !data.draft)
+    return events.map((entry) => ({
+        params: { id: entry.slug },
+        props: { entry },
+    }))
+}
+
+const { entry } = Astro.props
+const { data } = entry
+const { Content } = await entry.render()
+
+const start = new Date(data.start)
+const end = data.end ? new Date(data.end) : null
+---
+
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{data.title} - OpenStreetMap Japan</title>
+    </head>
+
+    <body>
+        <main style="max-width: 860px; margin: auto; padding: 24px;">
+            <p><a href="/events">← イベント一覧に戻る</a></p>
+
+            <h1>{data.title}</h1>
+            
+            <dl>
+                <dt>開始</dt>
+                <dd>{start.toLocaleDateString("ja-JP")}</dd>
+                {end && (
+                    <>
+                        <dt>終了</dt>
+                        <dd>{end.toLocaleDateString("ja-JP")}</dd>
+                    </>
+                )}
+
+                {data.venue_text && (
+                    <>
+                        <dt>会場</dt>
+                        <dd>{data.venue_text}</dd>
+                    </>
+                )}
+
+                {data.organizer && (
+                    <>
+                        <dt>主催者</dt>
+                        <dd>{data.organizer}</dd>
+                    </>
+                )}
+
+                {data.project && (
+                    <>
+                        <dt>プロジェクト</dt>
+                        <dd>{data.project}</dd>
+                    </>
+                )}
+            </dl>
+
+            <hr />
+
+            <article>
+                <Content />
+            </article>
+
+            {data.source_url && (
+                <p style="margin-top: 24px">
+                    元のページ: <a href={data.source_url}>{data.source_url}</a>
+                </p>
+            )}
+        </main>
+    </body>
+</html>
