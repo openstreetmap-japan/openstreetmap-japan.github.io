@@ -21,6 +21,10 @@ const EventMap = ({ points }: { points: EventPoint[] }) => {
 
         if (mapRef.current) return
 
+        if (points.length === 0) return
+
+        const firstPoint = points[0]
+
         const map = new maplibregl.Map({
             container: containerRef.current,
             style: {
@@ -44,8 +48,8 @@ const EventMap = ({ points }: { points: EventPoint[] }) => {
                     },
                 ],
             },
-            center: [139.6917, 35.6895], // Tokyo
-            zoom: 5,
+            center: [firstPoint.longitude, firstPoint.latitude],
+            zoom: 14,
         })
 
         map.addControl(new maplibregl.NavigationControl(), "top-right")
@@ -77,7 +81,7 @@ const EventMap = ({ points }: { points: EventPoint[] }) => {
             for (const p of points) {
                 bounds.extend([p.longitude, p.latitude])
             }
-            map.fitBounds(bounds, { padding: 50 })
+            map.fitBounds(bounds, { padding: 50, maxZoom: 14 })
         }
 
         mapRef.current = map

@@ -1,50 +1,242 @@
 ---
-import { getCollection } from "astro:content"
-import { effect } from "astro:schema"
+import { getCollection } from "astro:content";
 
+type FeedItem = {
+  kind: "event" | "page";
+  title: string;
+  href: string;
+  sortMs: number; // sort key
+  dateLabel: string;
+  hero_image?: string;
+  venue_text?: string;
+};
 
-const events = (await getCollection("events", ({ data }) => !data.draft))
-    .map((e) => ({
-        ...e,
-        startDate: new Date(e.data.start),
-    }))
-    .sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+const events = (await getCollection("events", ({ data }) => !data.draft)).map((e) => {
+  const d = new Date(e.data.start);
+  const ms = d.getTime();
+  return {
+    kind: "event",
+    title: e.data.title,
+    href: `/events/${e.slug}/`,
+    sortMs: ms,
+    dateLabel: d.toLocaleDateString("ja-JP"),
+    hero_image: e.data.hero_image,
+    venue_text: e.data.venue_text,
+  } satisfies FeedItem;
+});
+
+const pages = (await getCollection("pages"))
+  .filter((p) => !p.data.draft)
+  .map((p) => {
+    // Prefer explicit date fields when available.
+    // If missing, fall back to legacy_node_id as a stable proxy (higher nid = newer in Drupal).
+    const iso = (p.data.updated ?? p.data.date ?? "") as string;
+    const ms = iso
+      ? new Date(iso).getTime()
+      : (typeof p.data.legacy_node_id === "string" ? Number(p.data.legacy_node_id) : 0);
+
+    const slug = (p.data.slug ?? p.slug) as string;
+    const label = iso ? new Date(iso).toLocaleDateString("ja-JP") : "";
+
+    return {
+      kind: "page",
+      title: p.data.title,
+      href: `/${slug.replace(/^\/+/, "")}/`,
+      // Convert nid-proxy to a large ms so it can interleave with events.
+      // (Only used when iso is missing.)
+      sortMs: iso ? ms : 1_700_000_000_000 + ms,
+      dateLabel: label,
+      hero_image: p.data.hero_image,
+    } satisfies FeedItem;
+  });
+
+const items = [...events, ...pages].sort((a, b) => b.sortMs - a.sortMs);
+
+const PER_PAGE = 10;
+const totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
+const initialSlice = items.slice(0, PER_PAGE);
 ---
 
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>イベント一覧 - OpenStreetMap Japan</title>
-    </head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>イベント・ページ一覧 | OpenStreetMap Japan</title>
+  </head>
 
-    <body>
-        <main style="max-width: 860px; margin: auto; padding: 24px;">
-            <h1>イベント一覧</h1>
+  <body>
+    <main style="max-width: 980px; margin: 0 auto; padding: 24px;">
+      <h1>イベント・ページ一覧</h1>
 
-            <p>
-                <a href="/events/map/">地図で見る</a>
-            </p>
+      <p style="margin-top:8px;">
+        <a href="/events/map/">イベント地図</a>
+      </p>
 
-            <ul>
-                {events.map((e)=> {
-                    const start = new Date(e.data.start)
-                    const end = e.data.end ? new Date(e.data.end) : null
+      <div
+        id="feed"
+        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:16px;"
+      >
+        {initialSlice.map((item) => (
+          <article style="border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff;">
+            <a href={item.href} style="text-decoration:none;color:inherit;">
+              {item.hero_image ? (
+                <img
+                  src={item.hero_image}
+                  alt=""
+                  loading="lazy"
+                  style="display:block;width:100%;height:160px;object-fit:cover;background:#f2f2f2;"
+                />
+              ) : (
+                <div style="height:160px;background:#f2f2f2;"></div>
+              )}
 
-                    return (
-                        <li style="margin: 16px 0;">
-                            <a href={`/events/${e.slug}/`}>
-                                <strong>{e.data.title}</strong>
-                            </a>
-                            <div>
-                                {start.toLocaleDateString("ja-JP")},
-                                {end ? ` 〜 ${end.toLocaleDateString("ja-JP")}` : ""}
-                                {e.data.venue_text ? ` @ ${e.data.venue_text}` : ""}
-                            </div>
-                        </li>
-                    )
-                })}
-            </ul>
-        </main>
-    </body>
+              <div style="padding:14px 14px 16px;">
+                <div style="font-size:12px;opacity:0.8;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
+                  <span style="padding:2px 8px;border:1px solid #ddd;border-radius:999px;font-size:11px;">
+                    {item.kind === "event" ? "EVENT" : "PAGE"}
+                  </span>
+                  {item.dateLabel && <span>{item.dateLabel}</span>}
+                </div>
+
+                <h2 style="font-size:16px;margin:0 0 8px;line-height:1.35;">{item.title}</h2>
+
+                {item.kind === "event" && item.venue_text && (
+                  <div style="font-size:13px;opacity:0.85;">{item.venue_text}</div>
+                )}
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+
+      <nav id="pager" style="display:flex;gap:12px;align-items:center;justify-content:center;margin:24px 0 0;">
+        <a id="prev" href="?page=1" style="pointer-events:none;opacity:.5;">← 前へ</a>
+        <span id="pageinfo" style="font-size:13px;opacity:.85;">1 / {totalPages}</span>
+        <a
+          id="next"
+          href="?page=2"
+          style={totalPages >= 2 ? "" : "pointer-events:none;opacity:.5;"}
+        >
+          次へ →
+        </a>
+      </nav>
+
+      <script type="application/json" id="items-json">{JSON.stringify(items)}</script>
+
+      <script>
+        (function () {
+          const perPage = 10;
+          const items = JSON.parse(document.getElementById("items-json").textContent);
+          const params = new URLSearchParams(location.search);
+          const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
+          const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+          const safePage = Math.min(page, totalPages);
+
+          function el(tag, attrs, children) {
+            const e = document.createElement(tag);
+            if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+            if (children) children.forEach((c) => e.appendChild(c));
+            return e;
+          }
+
+          function text(s) {
+            return document.createTextNode(s);
+          }
+
+          function render() {
+            const start = (safePage - 1) * perPage;
+            const slice = items.slice(start, start + perPage);
+
+            const feed = document.getElementById("feed");
+            feed.innerHTML = "";
+
+            slice.forEach((item) => {
+              const card = el("article", {
+                style: "border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff;",
+              });
+              const a = el("a", { href: item.href, style: "text-decoration:none;color:inherit;" });
+
+              if (item.hero_image) {
+                a.appendChild(
+                  el("img", {
+                    src: item.hero_image,
+                    alt: "",
+                    loading: "lazy",
+                    style:
+                      "display:block;width:100%;height:160px;object-fit:cover;background:#f2f2f2;",
+                  })
+                );
+              } else {
+                a.appendChild(el("div", { style: "height:160px;background:#f2f2f2;" }));
+              }
+
+              const body = el("div", { style: "padding:14px 14px 16px;" });
+
+              const meta = el("div", {
+                style:
+                  "font-size:12px;opacity:0.8;margin-bottom:6px;display:flex;gap:8px;align-items:center;",
+              });
+              meta.appendChild(
+                el(
+                  "span",
+                  {
+                    style: "padding:2px 8px;border:1px solid #ddd;border-radius:999px;font-size:11px;",
+                  },
+                  [text(item.kind === "event" ? "EVENT" : "PAGE")]
+                )
+              );
+              if (item.dateLabel) meta.appendChild(el("span", null, [text(item.dateLabel)]));
+              body.appendChild(meta);
+
+              body.appendChild(
+                el("h2", { style: "font-size:16px;margin:0 0 8px;line-height:1.35;" }, [
+                  text(item.title),
+                ])
+              );
+
+              if (item.kind === "event" && item.venue_text) {
+                body.appendChild(el("div", { style: "font-size:13px;opacity:0.85;" }, [text(item.venue_text)]));
+              }
+
+              a.appendChild(body);
+              card.appendChild(a);
+              feed.appendChild(card);
+            });
+
+            const prev = document.getElementById("prev");
+            const next = document.getElementById("next");
+            const info = document.getElementById("pageinfo");
+
+            info.textContent = safePage + " / " + totalPages;
+
+            if (safePage > 1) {
+              prev.href = "?page=" + (safePage - 1);
+              prev.style.pointerEvents = "";
+              prev.style.opacity = "";
+            } else {
+              prev.href = "?page=1";
+              prev.style.pointerEvents = "none";
+              prev.style.opacity = ".5";
+            }
+
+            if (safePage < totalPages) {
+              next.href = "?page=" + (safePage + 1);
+              next.style.pointerEvents = "";
+              next.style.opacity = "";
+            } else {
+              next.href = "?page=" + totalPages;
+              next.style.pointerEvents = "none";
+              next.style.opacity = ".5";
+            }
+          }
+
+          render();
+        })();
+      </script>
+
+      <noscript>
+        <p style="margin-top:16px;opacity:.85;">ページ送り（?page=2 など）にはJavaScriptが必要です。</p>
+      </noscript>
+    </main>
+  </body>
 </html>

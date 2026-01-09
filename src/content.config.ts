@@ -32,6 +32,10 @@ export const events = defineCollection({
         // 元URL(検証・トレース用)
         source_url: z.string().url().optional(),
 
+        // 画像
+        hero_image: z.string().optional(),
+        attachments: z.array(z.string()).optional(),
+
         // 下書き・非公開制御(将来用)
         draft: z.boolean().optional().default(false),
     }),
@@ -56,7 +60,15 @@ export const pages = defineCollection({
         // ナビ表示順など (任意)
         order: z.number().optional(),
 
+        // 画像
+        hero_image: z.string().optional(),
+        attachments: z.array(z.string()).optional(),
+
         updated: z.string().optional(),
+        date: z.string().optional(),
+
+        // 下書き・非公開制御(将来用)
+        draft: z.boolean().optional().default(false),
     }),
 })
 
