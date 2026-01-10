@@ -126,20 +126,20 @@ const initialSlice = items.slice(0, PER_PAGE);
       <script>
         (function () {
           const perPage = 10;
-          const items = JSON.parse(document.getElementById("items-json").textContent);
+          const items = JSON.parse(document.getElementById("items-json")!.textContent);
           const params = new URLSearchParams(location.search);
           const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
           const totalPages = Math.max(1, Math.ceil(items.length / perPage));
           const safePage = Math.min(page, totalPages);
 
-          function el(tag, attrs, children) {
+          function el(tag: string, attrs: Record<string, string> | null, children?: ChildNode[] | null) {
             const e = document.createElement(tag);
             if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
             if (children) children.forEach((c) => e.appendChild(c));
             return e;
           }
 
-          function text(s) {
+          function text(s: string) {
             return document.createTextNode(s);
           }
 
@@ -147,7 +147,7 @@ const initialSlice = items.slice(0, PER_PAGE);
             const start = (safePage - 1) * perPage;
             const slice = items.slice(start, start + perPage);
 
-            const feed = document.getElementById("feed");
+            const feed = document.getElementById("feed") as HTMLDivElement;
             feed.innerHTML = "";
 
             slice.forEach((item) => {
