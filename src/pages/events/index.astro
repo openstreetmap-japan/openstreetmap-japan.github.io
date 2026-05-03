@@ -121,7 +121,7 @@ const initialSlice = items.slice(0, PER_PAGE);
         </a>
       </nav>
 
-      <script type="application/json" id="items-json">{JSON.stringify(items)}</script>
+      <script type="application/json" id="items-json" is:inline set:html={JSON.stringify(items)} />
 
       <script>
         (function () {
