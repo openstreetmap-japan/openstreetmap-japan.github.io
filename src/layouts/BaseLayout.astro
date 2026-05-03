@@ -1,0 +1,38 @@
+---
+type Props = {
+  title?: string;
+};
+
+const { title = "OpenStreetMap Japan" } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-gray-50 text-gray-900">
+    <header class="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <a href="/" class="flex items-center gap-2 font-semibold">
+          <img src="/images/assets/osm_logo.svg" alt="OpenStreetMap Logo" class="h-6 w-6" />
+          <span>OpenStreetMap Japan</span>
+        </a>
+      </div>
+      <h1 class="text-3xl font-bold">OpenStreetMap Japan</h1>
+      <h1>{title}</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>&copy; 2024 OpenStreetMap Japan</p>
+    </footer>
+  </body>
+</html>

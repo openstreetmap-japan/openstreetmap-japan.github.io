@@ -1,0 +1,33 @@
+root = true
+
+[*.{js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 2
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+
+[*.{astro}]
+indent_style = space
+indent_size = 2
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
+
+[*.{json,md,yml}]
+indent_style = space
+indent_size = 2
+charset = utf-8
+trim_trailing_whitespace = false
+insert_final_newline = true
+end_of_line = lf
+
+[*.{css,scss,html}]
+indent_style = space
+indent_size = 2
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = lf
