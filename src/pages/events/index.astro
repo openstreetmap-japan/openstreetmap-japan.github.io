@@ -1,11 +1,12 @@
 ---
+import SiteLayout from "../../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 
 type FeedItem = {
   kind: "event" | "page";
   title: string;
   href: string;
-  sortMs: number; // sort key
+  sortMs: number;
   dateLabel: string;
   hero_image?: string;
   venue_text?: string;
@@ -13,12 +14,11 @@ type FeedItem = {
 
 const events = (await getCollection("events", ({ data }) => !data.draft)).map((e) => {
   const d = new Date(e.data.start);
-  const ms = d.getTime();
   return {
     kind: "event",
     title: e.data.title,
     href: `/events/${e.id}/`,
-    sortMs: ms,
+    sortMs: d.getTime(),
     dateLabel: d.toLocaleDateString("ja-JP"),
     hero_image: e.data.hero_image,
     venue_text: e.data.venue_text,
@@ -27,23 +27,15 @@ const events = (await getCollection("events", ({ data }) => !data.draft)).map((e
 
 const pages = (await getCollection("pages"))
   .filter((p) => !p.data.draft)
+  .filter((p) => !!p.data.legacy_node_id)
   .map((p) => {
-    // Prefer explicit date fields when available.
-    // If missing, fall back to legacy_node_id as a stable proxy (higher nid = newer in Drupal).
     const iso = (p.data.updated ?? p.data.date ?? "") as string;
-    const ms = iso
-      ? new Date(iso).getTime()
-      : (typeof p.data.legacy_node_id === "string" ? Number(p.data.legacy_node_id) : 0);
-
-    const slug = (p.data.slug ?? p.id) as string;
+    const ms = iso ? new Date(iso).getTime() : Number(p.data.legacy_node_id);
     const label = iso ? new Date(iso).toLocaleDateString("ja-JP") : "";
-
     return {
       kind: "page",
       title: p.data.title,
-      href: `/${slug.replace(/^\/+/, "")}/`,
-      // Convert nid-proxy to a large ms so it can interleave with events.
-      // (Only used when iso is missing.)
+      href: `/node/${p.data.legacy_node_id}/`,
       sortMs: iso ? ms : 1_700_000_000_000 + ms,
       dateLabel: label,
       hero_image: p.data.hero_image,
@@ -57,186 +49,147 @@ const totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
 const initialSlice = items.slice(0, PER_PAGE);
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>イベント・ページ一覧 | OpenStreetMap Japan</title>
-  </head>
+<SiteLayout title="イベント・ページ一覧 | OpenStreetMap Japan">
+  <h1 class="text-2xl font-bold mb-2">イベント・ページ一覧</h1>
 
-  <body>
-    <main style="max-width: 980px; margin: 0 auto; padding: 24px;">
-      <h1>イベント・ページ一覧</h1>
+  <p class="mb-4 text-sm">
+    <a href="/events/map/" class="text-blue-700 hover:underline">イベント地図</a>
+  </p>
 
-      <p style="margin-top:8px;">
-        <a href="/events/map/">イベント地図</a>
-      </p>
-
-      <div
-        id="feed"
-        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:16px;"
-      >
-        {initialSlice.map((item) => (
-          <article style="border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff;">
-            <a href={item.href} style="text-decoration:none;color:inherit;">
+  <ul id="feed" class="space-y-4">
+    {initialSlice.map((item) => (
+      <li>
+        <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+          <a href={item.href} class="flex flex-col sm:flex-row group">
+            <div class="sm:w-56 sm:flex-shrink-0">
               {item.hero_image ? (
                 <img
                   src={item.hero_image}
                   alt=""
+                  class="w-full h-44 sm:h-full object-cover bg-gray-100"
                   loading="lazy"
-                  style="display:block;width:100%;height:160px;object-fit:cover;background:#f2f2f2;"
                 />
               ) : (
-                <div style="height:160px;background:#f2f2f2;"></div>
+                <div class="w-full h-44 sm:h-full bg-gray-100" />
               )}
-
-              <div style="padding:14px 14px 16px;">
-                <div style="font-size:12px;opacity:0.8;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
-                  <span style="padding:2px 8px;border:1px solid #ddd;border-radius:999px;font-size:11px;">
-                    {item.kind === "event" ? "EVENT" : "PAGE"}
-                  </span>
-                  {item.dateLabel && <span>{item.dateLabel}</span>}
-                </div>
-
-                <h2 style="font-size:16px;margin:0 0 8px;line-height:1.35;">{item.title}</h2>
-
-                {item.kind === "event" && item.venue_text && (
-                  <div style="font-size:13px;opacity:0.85;">{item.venue_text}</div>
-                )}
+            </div>
+            <div class="p-4 sm:p-5 flex-1 min-w-0">
+              <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                <span class="inline-block px-2 py-0.5 border border-gray-300 rounded-full">
+                  {item.kind === "event" ? "イベント" : "お知らせ"}
+                </span>
+                {item.dateLabel && <span>{item.dateLabel}</span>}
               </div>
-            </a>
-          </article>
-        ))}
-      </div>
+              <h2 class="text-base font-bold text-gray-900 group-hover:text-blue-700 leading-snug">
+                {item.title}
+              </h2>
+              {item.kind === "event" && item.venue_text && (
+                <div class="mt-1 text-xs text-gray-600">会場: {item.venue_text}</div>
+              )}
+            </div>
+          </a>
+        </article>
+      </li>
+    ))}
+  </ul>
 
-      <nav id="pager" style="display:flex;gap:12px;align-items:center;justify-content:center;margin:24px 0 0;">
-        <a id="prev" href="?page=1" style="pointer-events:none;opacity:.5;">← 前へ</a>
-        <span id="pageinfo" style="font-size:13px;opacity:.85;">1 / {totalPages}</span>
-        <a
-          id="next"
-          href="?page=2"
-          style={totalPages >= 2 ? "" : "pointer-events:none;opacity:.5;"}
-        >
-          次へ →
-        </a>
-      </nav>
+  <nav id="pager" class="mt-6 flex items-center justify-center gap-4 text-sm">
+    <a id="prev" href="?page=1" class="text-blue-700 hover:underline pointer-events-none opacity-50">← 前へ</a>
+    <span id="pageinfo" class="text-gray-600">1 / {totalPages}</span>
+    <a
+      id="next"
+      href="?page=2"
+      class={`text-blue-700 hover:underline ${totalPages >= 2 ? "" : "pointer-events-none opacity-50"}`}
+    >
+      次へ →
+    </a>
+  </nav>
 
-      <script type="application/json" id="items-json" is:inline set:html={JSON.stringify(items)} />
+  <script type="application/json" id="items-json" is:inline set:html={JSON.stringify(items)} />
 
-      <script>
-        (function () {
-          const perPage = 10;
-          const items = JSON.parse(document.getElementById("items-json")!.textContent);
-          const params = new URLSearchParams(location.search);
-          const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
-          const totalPages = Math.max(1, Math.ceil(items.length / perPage));
-          const safePage = Math.min(page, totalPages);
+  <script>
+    (function () {
+      const perPage = 10;
+      const items = JSON.parse(document.getElementById("items-json")!.textContent!);
+      const params = new URLSearchParams(location.search);
+      const page = Math.max(1, parseInt(params.get("page") || "1", 10) || 1);
+      const totalPages = Math.max(1, Math.ceil(items.length / perPage));
+      const safePage = Math.min(page, totalPages);
 
-          function el(tag: string, attrs: Record<string, string> | null, children?: ChildNode[] | null) {
-            const e = document.createElement(tag);
-            if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
-            if (children) children.forEach((c) => e.appendChild(c));
-            return e;
-          }
+      function escapeHtml(s: string): string {
+        return s.replace(/[&<>"']/g, (c) =>
+          c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === '"' ? "&quot;" : "&#39;"
+        );
+      }
 
-          function text(s: string) {
-            return document.createTextNode(s);
-          }
+      type Item = {
+        kind: "event" | "page";
+        title: string;
+        href: string;
+        dateLabel: string;
+        hero_image?: string;
+        venue_text?: string;
+      };
 
-          function render() {
-            const start = (safePage - 1) * perPage;
-            const slice = items.slice(start, start + perPage);
+      function cardHtml(item: Item): string {
+        const img = item.hero_image
+          ? `<img src="${escapeHtml(item.hero_image)}" alt="" loading="lazy" class="w-full h-44 sm:h-full object-cover bg-gray-100">`
+          : `<div class="w-full h-44 sm:h-full bg-gray-100"></div>`;
+        const venue =
+          item.kind === "event" && item.venue_text
+            ? `<div class="mt-1 text-xs text-gray-600">会場: ${escapeHtml(item.venue_text)}</div>`
+            : "";
+        const date = item.dateLabel ? `<span>${escapeHtml(item.dateLabel)}</span>` : "";
+        const badge = item.kind === "event" ? "イベント" : "お知らせ";
+        return (
+          `<li><article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">` +
+          `<a href="${escapeHtml(item.href)}" class="flex flex-col sm:flex-row group">` +
+          `<div class="sm:w-56 sm:flex-shrink-0">${img}</div>` +
+          `<div class="p-4 sm:p-5 flex-1 min-w-0">` +
+          `<div class="flex items-center gap-2 text-xs text-gray-500 mb-1">` +
+          `<span class="inline-block px-2 py-0.5 border border-gray-300 rounded-full">${badge}</span>` +
+          `${date}</div>` +
+          `<h2 class="text-base font-bold text-gray-900 group-hover:text-blue-700 leading-snug">${escapeHtml(item.title)}</h2>` +
+          `${venue}` +
+          `</div></a></article></li>`
+        );
+      }
 
-            const feed = document.getElementById("feed") as HTMLDivElement;
-            feed.innerHTML = "";
+      function render() {
+        const start = (safePage - 1) * perPage;
+        const slice = items.slice(start, start + perPage) as Item[];
 
-            slice.forEach((item) => {
-              const card = el("article", {
-                style: "border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff;",
-              });
-              const a = el("a", { href: item.href, style: "text-decoration:none;color:inherit;" });
+        const feed = document.getElementById("feed")!;
+        feed.innerHTML = slice.map(cardHtml).join("");
 
-              if (item.hero_image) {
-                a.appendChild(
-                  el("img", {
-                    src: item.hero_image,
-                    alt: "",
-                    loading: "lazy",
-                    style:
-                      "display:block;width:100%;height:160px;object-fit:cover;background:#f2f2f2;",
-                  })
-                );
-              } else {
-                a.appendChild(el("div", { style: "height:160px;background:#f2f2f2;" }));
-              }
+        const prev = document.getElementById("prev") as HTMLAnchorElement;
+        const next = document.getElementById("next") as HTMLAnchorElement;
+        const info = document.getElementById("pageinfo")!;
 
-              const body = el("div", { style: "padding:14px 14px 16px;" });
+        info.textContent = safePage + " / " + totalPages;
 
-              const meta = el("div", {
-                style:
-                  "font-size:12px;opacity:0.8;margin-bottom:6px;display:flex;gap:8px;align-items:center;",
-              });
-              meta.appendChild(
-                el(
-                  "span",
-                  {
-                    style: "padding:2px 8px;border:1px solid #ddd;border-radius:999px;font-size:11px;",
-                  },
-                  [text(item.kind === "event" ? "EVENT" : "PAGE")]
-                )
-              );
-              if (item.dateLabel) meta.appendChild(el("span", null, [text(item.dateLabel)]));
-              body.appendChild(meta);
+        if (safePage > 1) {
+          prev.href = "?page=" + (safePage - 1);
+          prev.classList.remove("pointer-events-none", "opacity-50");
+        } else {
+          prev.href = "?page=1";
+          prev.classList.add("pointer-events-none", "opacity-50");
+        }
 
-              body.appendChild(
-                el("h2", { style: "font-size:16px;margin:0 0 8px;line-height:1.35;" }, [
-                  text(item.title),
-                ])
-              );
+        if (safePage < totalPages) {
+          next.href = "?page=" + (safePage + 1);
+          next.classList.remove("pointer-events-none", "opacity-50");
+        } else {
+          next.href = "?page=" + totalPages;
+          next.classList.add("pointer-events-none", "opacity-50");
+        }
+      }
 
-              if (item.kind === "event" && item.venue_text) {
-                body.appendChild(el("div", { style: "font-size:13px;opacity:0.85;" }, [text(item.venue_text)]));
-              }
+      render();
+    })();
+  </script>
 
-              a.appendChild(body);
-              card.appendChild(a);
-              feed.appendChild(card);
-            });
-
-            const prev = document.getElementById("prev");
-            const next = document.getElementById("next");
-            const info = document.getElementById("pageinfo");
-
-            info.textContent = safePage + " / " + totalPages;
-
-            if (safePage > 1) {
-              prev.href = "?page=" + (safePage - 1);
-              prev.style.pointerEvents = "";
-              prev.style.opacity = "";
-            } else {
-              prev.href = "?page=1";
-              prev.style.pointerEvents = "none";
-              prev.style.opacity = ".5";
-            }
-
-            if (safePage < totalPages) {
-              next.href = "?page=" + (safePage + 1);
-              next.style.pointerEvents = "";
-              next.style.opacity = "";
-            } else {
-              next.href = "?page=" + totalPages;
-              next.style.pointerEvents = "none";
-              next.style.opacity = ".5";
-            }
-          }
-
-          render();
-        })();
-      </script>
-
-      <noscript>
-        <p style="margin-top:16px;opacity:.85;">ページ送り（?page=2 など）にはJavaScriptが必要です。</p>
-      </noscript>
-    </main>
-  </body>
-</html>
+  <noscript>
+    <p class="mt-4 text-sm text-gray-600">ページ送り（?page=2 など）にはJavaScriptが必要です。</p>
+  </noscript>
+</SiteLayout>

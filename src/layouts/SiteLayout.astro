@@ -1,0 +1,149 @@
+---
+import "../assets/app.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const {
+  title = "OpenStreetMap Japan",
+  description = "OpenStreetMap (OSM) は、誰でも自由に地図を使えるよう、みんなでオープンデータの地理情報を作るプロジェクトです。",
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+
+  <body class="min-h-screen bg-gray-100 text-gray-900">
+    <header class="bg-white border-b border-gray-200">
+      <div class="mx-auto max-w-6xl px-4 pt-6 pb-3 flex items-center gap-4">
+        <a href="/" class="flex items-center gap-3">
+          <img src="/images/assets/osm_logo.svg" alt="OpenStreetMap Japan ロゴ" class="h-14 w-14" width="56" height="56" />
+          <div>
+            <div class="text-2xl font-bold tracking-tight text-gray-900 leading-none">OpenStreetMap Japan</div>
+            <div class="text-sm text-gray-600 mt-1">自由な地図をみんなの手で / The Free Wiki World Map</div>
+          </div>
+        </a>
+      </div>
+      <nav class="border-t border-gray-200">
+        <ul class="mx-auto max-w-6xl px-2 flex flex-wrap items-stretch text-sm">
+          <li>
+            <a href="/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">Home</a>
+          </li>
+          <li>
+            <a href="https://openstreetmap.org/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="地図を閲覧し編集できるopenstreetmap.orgへ行きます">OpenStreetMap プロジェクトサイト</a>
+          </li>
+          <li class="relative group">
+            <a href="/events/" class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">
+              <span>イベント</span>
+              <span class="text-xs">▾</span>
+            </a>
+            <ul class="absolute left-0 top-full hidden group-hover:block group-focus-within:block min-w-56 bg-white border border-gray-200 shadow-md z-20">
+              <li class="border-b border-gray-100">
+                <a href="https://forms.gle/nbBSvZXUkgRXfiA56" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="OpenStreetMapに関するイベント情報を投稿します。">イベント情報を投稿</a>
+              </li>
+              <li class="border-b border-gray-100">
+                <a href="/events/map/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント地図</a>
+              </li>
+              <li>
+                <a href="/events/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント一覧</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="https://discord.gg/pNuUM99kUX" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">Discord</a>
+          </li>
+          <li>
+            <a href="/node/751/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="議論しましょう">掲示板</a>
+          </li>
+          <li>
+            <a href="/node/27/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="メーリングリストのご案内">ML案内</a>
+          </li>
+          <li>
+            <a href="/node/29/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="ライセンスとプライバシーポリシーについて">ライセンス</a>
+          </li>
+          <li>
+            <a href="https://www.osmf.jp/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">運営組織</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="mx-auto max-w-6xl px-4 py-8 grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-8">
+      <aside class="space-y-4 lg:order-first">
+        <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">外部リンク</h2>
+          <ul class="text-sm">
+            <li class="border-b border-gray-100">
+              <a href="http://learnosm.org/ja/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50" title="LearnOSMでは、OSM初心者を主な対象に、概要や編集方法、利用方法について解説が行われています">LearnOSM</a>
+            </li>
+            <li class="border-b border-gray-100">
+              <a href="https://discord.gg/pNuUM99kUX" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OpenStreetMap Discord</a>
+            </li>
+            <li>
+              <a href="https://stateofthemap.jp/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">State of the Map Japan</a>
+            </li>
+          </ul>
+        </section>
+
+        <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">ガイド</h2>
+          <ul class="text-sm">
+            <li class="border-b border-gray-100">
+              <a href="/node/762/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OSM利用入門</a>
+            </li>
+            <li class="border-b border-gray-100">
+              <a href="/node/763/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OSM編集入門</a>
+              <ul class="text-xs bg-gray-50/40 border-t border-gray-100">
+                <li class="border-b border-gray-100">
+                  <a href="/node/764/" class="block pl-8 pr-4 py-2 text-blue-700 hover:bg-gray-50">利用可能なデータソース</a>
+                </li>
+                <li class="border-b border-gray-100">
+                  <a href="/node/765/" class="block pl-8 pr-4 py-2 text-blue-700 hover:bg-gray-50">データインポート</a>
+                </li>
+                <li>
+                  <a href="/node/825/" class="block pl-8 pr-4 py-2 text-blue-700 hover:bg-gray-50">CC BY 4.0データの利用申請テンプレート</a>
+                </li>
+              </ul>
+            </li>
+            <li class="border-b border-gray-100">
+              <a href="/node/766/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OSMコミュニティ</a>
+            </li>
+            <li>
+              <a href="/node/767/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OSMFJについて</a>
+            </li>
+          </ul>
+        </section>
+
+        <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">ナビゲーション</h2>
+          <ul class="text-sm">
+            <li class="border-b border-gray-100">
+              <a href="/events/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">最近の記事</a>
+            </li>
+            <li>
+              <a href="/events/map/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">イベント地図</a>
+            </li>
+          </ul>
+        </section>
+      </aside>
+
+      <main class="min-w-0">
+        <slot />
+      </main>
+    </div>
+
+    <footer class="border-t border-gray-200 bg-white mt-8">
+      <div class="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-gray-600">
+        Copyright © {new Date().getFullYear()}, OpenStreetMap Japan
+      </div>
+    </footer>
+  </body>
+</html>

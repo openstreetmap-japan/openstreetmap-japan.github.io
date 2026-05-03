@@ -1,4 +1,5 @@
 ---
+import SiteLayout from "../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 
 type FeedItem = {
@@ -9,7 +10,20 @@ type FeedItem = {
   dateLabel: string;
   hero_image?: string;
   venue_text?: string;
+  body: string;
 };
+
+function excerpt(raw: string, max = 140): string {
+  const stripped = raw
+    .replace(/^---[\s\S]*?---/, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/[#>*_`~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return stripped.length > max ? stripped.slice(0, max) + "…" : stripped;
+}
 
 const events = (await getCollection("events", ({ data }) => !data.draft)).map((e) => {
   const d = new Date(e.data.start);
@@ -21,109 +35,107 @@ const events = (await getCollection("events", ({ data }) => !data.draft)).map((e
     dateLabel: d.toLocaleDateString("ja-JP"),
     hero_image: e.data.hero_image,
     venue_text: e.data.venue_text,
+    body: excerpt(e.body ?? ""),
   } satisfies FeedItem;
 });
 
 const pages = (await getCollection("pages"))
   .filter((p) => !p.data.draft)
+  .filter((p) => !!p.data.legacy_node_id)
   .map((p) => {
     const iso = (p.data.updated ?? p.data.date ?? "") as string;
     const d = iso ? new Date(iso) : new Date(0);
-    const slug = (p.data.slug ?? p.id) as string;
     return {
       kind: "page",
       title: p.data.title,
-      href: `/${slug.replace(/^\/+/, "")}/`,
+      href: `/node/${p.data.legacy_node_id}/`,
       date: d,
       dateLabel: iso ? d.toLocaleDateString("ja-JP") : "",
       hero_image: p.data.hero_image,
+      body: excerpt(p.body ?? ""),
     } satisfies FeedItem;
   });
 
-const latest = [...events, ...pages]
-  .sort((a, b) => b.date.getTime() - a.date.getTime())
-  .slice(0, 10);
+const items = [...events, ...pages].sort((a, b) => b.date.getTime() - a.date.getTime());
+const [featured, ...rest] = items;
+const list = rest.slice(0, 14);
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>OpenStreetMap Japan</title>
-  </head>
-
-  <body class="min-h-screen bg-gray-50 text-gray-900">
-    <main class="mx-auto max-w-5xl px-4 py-10">
-      <section>
-        <figure class="mx-auto w-48">
+<SiteLayout title="OpenStreetMap Japan | 自由な地図をみんなの手で / The Free Wiki World Map">
+  {featured && (
+    <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-6">
+      <a href={featured.href} class="block group">
+        {featured.hero_image && (
           <img
-            src="/images/assets/osm_logo.svg"
-            alt="OpenStreetMap Japan ロゴ"
-            width="100"
-            height="100"
+            src={featured.hero_image}
+            alt=""
+            class="w-full h-64 object-cover bg-gray-100"
+            loading="eager"
           />
-        </figure>
-        <h1 class="text-3xl font-bold tracking-tight">OpenStreetMap Japan</h1>
-        <h2 class="text-2xl font-semibold tracking-tight mt-4">自由な地図をみんなの手で</h2>
-      </section>
+        )}
+        <div class="p-5">
+          <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+            <span class="inline-block px-2 py-0.5 border border-gray-300 rounded-full">
+              {featured.kind === "event" ? "イベント" : "お知らせ"}
+            </span>
+            {featured.dateLabel && <span>{featured.dateLabel}</span>}
+            {featured.kind === "event" && featured.venue_text && <span>・ {featured.venue_text}</span>}
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 group-hover:text-blue-700 leading-snug">
+            {featured.title}
+          </h2>
+          {featured.body && (
+            <p class="mt-3 text-sm text-gray-700 leading-relaxed">{featured.body}</p>
+          )}
+          <div class="mt-3 text-sm text-blue-700 group-hover:underline">続きを読む →</div>
+        </div>
+      </a>
+    </article>
+  )}
 
-      <section class="mt-8">
-        <h2 class="text-2xl font-semibold tracking-tight"></h2>
+  <ul class="space-y-4">
+    {list.map((item) => (
+      <li>
+        <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+          <a href={item.href} class="flex flex-col sm:flex-row group">
+            <div class="sm:w-56 sm:flex-shrink-0">
+              {item.hero_image ? (
+                <img
+                  src={item.hero_image}
+                  alt=""
+                  class="w-full h-44 sm:h-full object-cover bg-gray-100"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-44 sm:h-full bg-gray-100" />
+              )}
+            </div>
+            <div class="p-4 sm:p-5 flex-1 min-w-0">
+              <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                <span class="inline-block px-2 py-0.5 border border-gray-300 rounded-full">
+                  {item.kind === "event" ? "イベント" : "お知らせ"}
+                </span>
+                {item.dateLabel && <span>{item.dateLabel}</span>}
+              </div>
+              <h2 class="text-base font-bold text-gray-900 group-hover:text-blue-700 leading-snug">
+                {item.title}
+              </h2>
+              {item.kind === "event" && item.venue_text && (
+                <div class="mt-1 text-xs text-gray-600">会場: {item.venue_text}</div>
+              )}
+              {item.body && (
+                <p class="mt-2 text-sm text-gray-700 line-clamp-2">{item.body}</p>
+              )}
+            </div>
+          </a>
+        </article>
+      </li>
+    ))}
+  </ul>
 
-      </section>
-
-      <section style="margin-top: 24px;">
-		<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
-			<h2 style="margin:0;">最新の更新</h2>
-			<a href="/events/">一覧へ</a>
-		</div>
-
-		<div
-			style="
-			margin-top: 12px;
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-			gap: 16px;
-			"
-		>
-			{latest.map((item) => (
-			<article style="border:1px solid #ddd;border-radius:12px;overflow:hidden;">
-				<a href={item.href} style="text-decoration:none;color:inherit;">
-				{item.hero_image ? (
-					<img
-					src={item.hero_image}
-					alt=""
-					loading="lazy"
-					style="display:block;width:100%;height:160px;object-fit:cover;background:#f2f2f2;"
-					/>
-				) : (
-					<div style="height:160px;background:#f2f2f2;"></div>
-				)}
-				<div style="padding:14px;">
-					<div style="font-size:12px;opacity:.8;margin-bottom:6px;display:flex;gap:8px;align-items:center;">
-					<span style="padding:2px 8px;border:1px solid #ddd;border-radius:999px;font-size:11px;">
-						{item.kind === "event" ? "EVENT" : "PAGE"}
-					</span>
-					{item.dateLabel && <span>{item.dateLabel}</span>}
-					</div>
-					<div style="font-weight:700;line-height:1.35;">{item.title}</div>
-					{item.kind === "event" && item.venue_text && (
-					<div style="margin-top:6px;font-size:13px;opacity:.85;">{item.venue_text}</div>
-					)}
-				</div>
-				</a>
-			</article>
-			))}
-		</div>
-	</section>
-
-      <section style="margin-top: 28px;">
-        <h2>リンク</h2>
-        <ul>
-          <li><a href="/events/">イベント</a></li>
-          <li><a href="/events/map/">イベント地図</a></li>
-        </ul>
-      </section>
-    </main>
-  </body>
-</html>
+  <div class="mt-6 text-center">
+    <a href="/events/" class="inline-block px-5 py-2 border border-gray-300 rounded-md bg-white text-sm text-gray-700 hover:bg-gray-50">
+      一覧をもっと見る →
+    </a>
+  </div>
+</SiteLayout>

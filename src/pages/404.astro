@@ -1,13 +1,13 @@
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <title>ページが見つかりません | OpenStreetMap Japan</title>
-  </head>
-  <body>
-    <main style="max-width: 860px; margin: 0 auto; padding: 24px;">
-      <h1>404 - ページが見つかりません</h1>
-      <p><a href="/">トップへ戻る</a></p>
-      <p><a href="/events/">イベント一覧</a></p>
-    </main>
-  </body>
-</html>
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout title="ページが見つかりません | OpenStreetMap Japan">
+  <article class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">
+    <h1 class="text-2xl font-bold mb-4">404 - ページが見つかりません</h1>
+    <ul class="text-sm space-y-1">
+      <li><a href="/" class="text-blue-700 hover:underline">トップへ戻る</a></li>
+      <li><a href="/events/" class="text-blue-700 hover:underline">イベント一覧</a></li>
+    </ul>
+  </article>
+</SiteLayout>

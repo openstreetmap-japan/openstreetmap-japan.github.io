@@ -1,50 +1,79 @@
 ---
-import { getCollection } from "astro:content";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { getCollection, render, type CollectionEntry } from "astro:content";
 
-// /node/<id>/ を「eventsとpages」の両方から生成する
+type Props =
+    | { kind: "redirect"; to: string }
+    | { kind: "page"; entry: CollectionEntry<"pages"> };
+
 export async function getStaticPaths() {
-    const events = await getCollection("events", ({ data }) => !data.draft)
-    const pages = await getCollection("pages")
-    // event node id = event slug（1038.md → slug=1038）
+    const events = await getCollection("events", ({ data }) => !data.draft);
+    const pages = await getCollection("pages", ({ data }) => !data.draft);
+
     const eventPaths = events.map((e) => ({
         params: { id: e.id },
-        props: { to: `../../events/${e.id}/` },
-    }))
+        props: { kind: "redirect", to: `/events/${e.id}/` } satisfies Props,
+    }));
 
-    // page node id = legacy_node_id（任意）
     const pagePaths = pages
         .filter((p) => !!p.data.legacy_node_id)
-        .map((p) => {
-            const id = p.data.legacy_node_id!
-            // pages の新URL：slug があればそれ、なければファイルslug
-            const newPath = p.data.slug ?? p.id;
-            return {
-                params: { id },
-                props: { to: `../../${newPath.replace(/^\/+/, "")}/` },
-            }
-        })
+        .map((p) => ({
+            params: { id: p.data.legacy_node_id! },
+            props: { kind: "page", entry: p } satisfies Props,
+        }));
 
-    // 重複（同じ node id が events と pages にいる）を弾く（events優先）
-    const seen = new Set(eventPaths.map((x) => x.params.id))
-    const pagePathsDedup = pagePaths.filter((x) => !seen.has(x.params.id))
+    const seen = new Set(eventPaths.map((x) => x.params.id));
+    const pagePathsDedup = pagePaths.filter((x) => !seen.has(x.params.id));
 
-    return [...eventPaths, ...pagePathsDedup]
+    return [...eventPaths, ...pagePathsDedup];
 }
 
-const { to } = Astro.props as { to: string }
+const props = Astro.props as Props;
+
+let Content: Awaited<ReturnType<typeof render>>["Content"] | null = null;
+let pageTitle = "";
+let pageDateLabel = "";
+let pageHeroImage: string | undefined;
+
+if (props.kind === "page") {
+    const rendered = await render(props.entry);
+    Content = rendered.Content;
+    const data = props.entry.data;
+    pageTitle = data.title;
+    const iso = (data.updated ?? data.date ?? "") as string;
+    pageDateLabel = iso ? new Date(iso).toLocaleDateString("ja-JP") : "";
+    pageHeroImage = data.hero_image;
+}
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content={`0;url=${to}`} />
-    <link rel="canonical" href={to} />
-    <title>Redirecting…</title>
-  </head>
-  <body>
-    <p>
-      移動します：<a href={to}>{to}</a>
-    </p>
-  </body>
-</html>
+{props.kind === "redirect" && (
+    <html lang="ja">
+        <head>
+            <meta charset="utf-8" />
+            <meta name="robots" content="noindex" />
+            <meta http-equiv="refresh" content={`0;url=${props.to}`} />
+            <link rel="canonical" href={props.to} />
+            <title>Redirecting…</title>
+        </head>
+        <body>
+            <p>移動します：<a href={props.to}>{props.to}</a></p>
+        </body>
+    </html>
+)}
+
+{props.kind === "page" && Content && (
+    <SiteLayout title={`${pageTitle} | OpenStreetMap Japan`}>
+        <article class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">
+            {pageHeroImage && (
+                <img src={pageHeroImage} alt="" class="w-full h-auto rounded mb-6" loading="eager" />
+            )}
+            <h1 class="text-2xl sm:text-3xl font-bold leading-snug">{pageTitle}</h1>
+            {pageDateLabel && (
+                <div class="text-xs text-gray-500 mt-2">{pageDateLabel}</div>
+            )}
+            <div class="prose prose-sm sm:prose mt-6 max-w-none">
+                <Content />
+            </div>
+        </article>
+    </SiteLayout>
+)}

@@ -1,23 +1,23 @@
 ---
-import { getCollection, render } from "astro:content"
-import EventMap from "../../components/EventMap"
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { getCollection, render } from "astro:content";
+import EventMap from "../../components/EventMap";
 
 export async function getStaticPaths() {
-    const events = await getCollection("events", ({ data }) => !data.draft)
+    const events = await getCollection("events", ({ data }) => !data.draft);
     return events.map((entry) => ({
         params: { id: entry.id },
         props: { entry },
-    }))
+    }));
 }
 
-const { entry } = Astro.props
-const { data } = entry
-const { Content } = await render(entry)
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
 
-const start = new Date(data.start)
-const end = data.end ? new Date(data.end) : null
+const start = new Date(data.start);
+const end = data.end ? new Date(data.end) : null;
 
-// 地図を表示
 const points = (typeof data.longitude === "number" && typeof data.latitude === "number") ? [{
     id: entry.id,
     title: data.title,
@@ -26,71 +26,64 @@ const points = (typeof data.longitude === "number" && typeof data.latitude === "
     href: `/events/${entry.id}/`,
     venue_text: data.venue_text,
     start: data.start,
-}] : []
+}] : [];
 ---
 
-<html lang="ja">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{data.title} - OpenStreetMap Japan</title>
-    </head>
+<SiteLayout title={`${data.title} | OpenStreetMap Japan`}>
+    <p class="text-sm mb-4"><a href="/events/" class="text-blue-700 hover:underline">← イベント一覧に戻る</a></p>
 
-    <body>
-        <main style="max-width: 860px; margin: auto; padding: 24px;">
-            <p><a href="/events">← イベント一覧に戻る</a></p>
+    <article class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">
+        {data.hero_image && (
+            <img src={data.hero_image} alt="" class="w-full h-auto rounded mb-6" loading="eager" />
+        )}
 
-            <h1>{data.title}</h1>
-            
-            <dl>
-                <dt>開始</dt>
-                <dd>{start.toLocaleDateString("ja-JP")}</dd>
-                {end && (
-                    <>
-                        <dt>終了</dt>
-                        <dd>{end.toLocaleDateString("ja-JP")}</dd>
-                    </>
-                )}
+        <h1 class="text-2xl sm:text-3xl font-bold leading-snug">{data.title}</h1>
 
-                {data.venue_text && (
-                    <>
-                        <dt>会場</dt>
-                        <dd>{data.venue_text}</dd>
-                    </>
-                )}
-
-                {data.organizer && (
-                    <>
-                        <dt>主催者</dt>
-                        <dd>{data.organizer}</dd>
-                    </>
-                )}
-
-                {data.project && (
-                    <>
-                        <dt>プロジェクト</dt>
-                        <dd>{data.project}</dd>
-                    </>
-                )}
-            </dl>
-
-            <hr />
-
-            <article>
-                <Content />
-            </article>
-
-            {data.source_url && (
-                <p style="margin-top: 24px">
-                    元のページ: <a href={data.source_url}>{data.source_url}</a>
-                </p>
+        <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+            <dt class="text-gray-500">開始</dt>
+            <dd>{start.toLocaleDateString("ja-JP")}</dd>
+            {end && (
+                <>
+                    <dt class="text-gray-500">終了</dt>
+                    <dd>{end.toLocaleDateString("ja-JP")}</dd>
+                </>
             )}
+            {data.venue_text && (
+                <>
+                    <dt class="text-gray-500">会場</dt>
+                    <dd>{data.venue_text}</dd>
+                </>
+            )}
+            {data.organizer && (
+                <>
+                    <dt class="text-gray-500">主催者</dt>
+                    <dd>{data.organizer}</dd>
+                </>
+            )}
+            {data.project && (
+                <>
+                    <dt class="text-gray-500">プロジェクト</dt>
+                    <dd>{data.project}</dd>
+                </>
+            )}
+        </dl>
 
-            { points.length === 0 ? (
-                <p>地図上に表示するイベントがありません。</p>
-            ) : (
+        <hr class="my-6 border-gray-200" />
+
+        <div class="prose prose-sm sm:prose max-w-none">
+            <Content />
+        </div>
+
+        {data.source_url && (
+            <p class="mt-6 text-sm text-gray-600">
+                元のページ: <a href={data.source_url} class="text-blue-700 hover:underline">{data.source_url}</a>
+            </p>
+        )}
+
+        {points.length > 0 && (
+            <div class="mt-6">
                 <EventMap {points} client:only="react" />
-            )}
-        </main>
-    </body>
-</html>
+            </div>
+        )}
+    </article>
+</SiteLayout>
