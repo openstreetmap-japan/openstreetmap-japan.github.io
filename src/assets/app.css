@@ -1,4 +1,27 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark;
+}
+
+/* Pin prose colors to fixed dark values so they don't flip to white
+   when daisyUI's dark theme activates via prefers-color-scheme.
+   Use :root .prose to match daisyUI's own override specificity. */
+:root .prose {
+  --tw-prose-body: #1f2937;          /* gray-800 */
+  --tw-prose-headings: #111827;      /* gray-900 */
+  --tw-prose-lead: #374151;          /* gray-700 */
+  --tw-prose-links: #1d4ed8;         /* blue-700 */
+  --tw-prose-bold: #111827;          /* gray-900 */
+  --tw-prose-counters: #4b5563;      /* gray-600 */
+  --tw-prose-bullets: #9ca3af;       /* gray-400 */
+  --tw-prose-hr: #e5e7eb;            /* gray-200 */
+  --tw-prose-quotes: #111827;
+  --tw-prose-quote-borders: #e5e7eb;
+  --tw-prose-captions: #4b5563;
+  --tw-prose-code: #111827;
+  --tw-prose-pre-code: #e5e7eb;
+  --tw-prose-pre-bg: #1f2937;
+  --tw-prose-th-borders: #d1d5db;    /* gray-300 */
+  --tw-prose-td-borders: #e5e7eb;
 }
