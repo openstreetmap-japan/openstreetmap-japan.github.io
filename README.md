@@ -47,11 +47,12 @@ latitude: 35.681236
 longitude: 139.767125
 
 # アイキャッチ (一覧サムネ + 詳細ヘッダ) — public/ からの絶対パス
-hero_image: "/images/legacy/your-image.png"
+# 新規追加画像は public/images/current/ に置いて以下のように参照する
+hero_image: "/images/current/your-image.png"
 
 # 添付や元URL (任意)
 attachments:
-  - "/images/legacy/your-image.png"
+  - "/images/current/your-image.png"
 source_url: "https://example.com/event-page"
 
 # 公開しない場合は true
@@ -76,7 +77,7 @@ title: "ページタイトル"
 slug: "my-page"                # ファイル名と合わせる (任意)
 legacy_node_id: "1234"        # 旧 Drupal /node/<id> 互換 URL を付ける場合
 date: "2026-06-15T10:00:00+09:00"
-hero_image: "/images/legacy/cover.png"   # 任意
+hero_image: "/images/current/cover.png"  # 任意 (新規画像は current/ 配下に置く)
 draft: false
 ---
 
@@ -87,7 +88,12 @@ draft: false
 
 ### 3. 画像
 
-画像は `public/images/legacy/` に置き、Markdown / フロントマターからは `/images/legacy/<file>` で参照します。
+| ディレクトリ | 用途 | 参照パス |
+| --- | --- | --- |
+| `public/images/current/` | **新規追加する画像はこちら** | `/images/current/<file>` |
+| `public/images/legacy/` | openstreetmap.jp から移行した既存画像 (基本さわらない) | `/images/legacy/<file>` |
+
+新しいイベントやページに画像を添える場合は `public/images/current/` 配下に置いて、フロントマターの `hero_image` などから `/images/current/<file>` で参照してください。
 
 サイズが大きい場合は事前に圧縮しておくのが望ましいです。
 
