@@ -16,7 +16,7 @@ const events = (await getCollection("events", ({ data }) => !data.draft)).map((e
   return {
     kind: "event",
     title: e.data.title,
-    href: `/events/${e.slug}/`,
+    href: `/events/${e.id}/`,
     date: d,
     dateLabel: d.toLocaleDateString("ja-JP"),
     hero_image: e.data.hero_image,
@@ -29,7 +29,7 @@ const pages = (await getCollection("pages"))
   .map((p) => {
     const iso = (p.data.updated ?? p.data.date ?? "") as string;
     const d = iso ? new Date(iso) : new Date(0);
-    const slug = (p.data.slug ?? p.slug) as string;
+    const slug = (p.data.slug ?? p.id) as string;
     return {
       kind: "page",
       title: p.data.title,

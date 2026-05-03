@@ -7,8 +7,8 @@ export async function getStaticPaths() {
     const pages = await getCollection("pages")
     // event node id = event slug（1038.md → slug=1038）
     const eventPaths = events.map((e) => ({
-        params: { id: e.slug },
-        props: { to: `../../events/${e.slug}/` },
+        params: { id: e.id },
+        props: { to: `../../events/${e.id}/` },
     }))
 
     // page node id = legacy_node_id（任意）
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
         .map((p) => {
             const id = p.data.legacy_node_id!
             // pages の新URL：slug があればそれ、なければファイルslug
-            const newPath = p.data.slug ?? p.slug;
+            const newPath = p.data.slug ?? p.id;
             return {
                 params: { id },
                 props: { to: `../../${newPath.replace(/^\/+/, "")}/` },

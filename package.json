@@ -9,17 +9,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^4.4.2",
-    "@types/react": "^19.2.7",
+    "@astrojs/react": "^5.0.4",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "astro": "^5.16.6",
-    "maplibre-gl": "^5.15.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "astro": "^6.2.1",
+    "maplibre-gl": "^5.24.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.18",
-    "daisyui": "^5.5.14",
-    "tailwindcss": "^4.1.18"
+    "@tailwindcss/vite": "^4.2.4",
+    "daisyui": "^5.5.19",
+    "tailwindcss": "^4.2.4"
   }
 }

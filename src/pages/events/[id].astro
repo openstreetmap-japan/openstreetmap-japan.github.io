@@ -1,29 +1,29 @@
 ---
-import { getCollection } from "astro:content"
+import { getCollection, render } from "astro:content"
 import EventMap from "../../components/EventMap"
 
 export async function getStaticPaths() {
     const events = await getCollection("events", ({ data }) => !data.draft)
     return events.map((entry) => ({
-        params: { id: entry.slug },
+        params: { id: entry.id },
         props: { entry },
     }))
 }
 
 const { entry } = Astro.props
 const { data } = entry
-const { Content } = await entry.render()
+const { Content } = await render(entry)
 
 const start = new Date(data.start)
 const end = data.end ? new Date(data.end) : null
 
 // 地図を表示
 const points = (typeof data.longitude === "number" && typeof data.latitude === "number") ? [{
-    id: entry.slug,
+    id: entry.id,
     title: data.title,
     latitude: data.latitude!,
     longitude: data.longitude!,
-    href: `/events/${entry.slug}/`,
+    href: `/events/${entry.id}/`,
     venue_text: data.venue_text,
     start: data.start,
 }] : []

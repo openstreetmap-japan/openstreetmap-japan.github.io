@@ -8,11 +8,11 @@ const events = await getCollection("events", ({ data }) => !data.draft)
 const points = events
     .filter((e) => typeof e.data.longitude === "number" && typeof e.data.latitude === "number" )
     .map((e) => ({
-        id: e.slug,
+        id: e.id,
         title: e.data.title,
         latitude: e.data.latitude!,
         longitude: e.data.longitude!,
-        href: `/events/${e.slug}/`,
+        href: `/events/${e.id}/`,
         venue_text: e.data.venue_text,
         start: e.data.start,
     }))

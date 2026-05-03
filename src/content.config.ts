@@ -1,4 +1,5 @@
 import { defineCollection, z } from "astro:content"
+import { glob } from "astro/loaders"
 
 /**
  * Events
@@ -7,7 +8,7 @@ import { defineCollection, z } from "astro:content"
  * - URL: /events/1038/
  */
 export const events = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/events" }),
     schema: z.object({
         title: z.string(),
 
@@ -47,7 +48,7 @@ export const events = defineCollection({
  * - 旧 /node/xxx を /guide/... や /about/... に集約
  */
 export const pages = defineCollection({
-    type: "content",
+    loader: glob({ pattern: "**/*.md", base: "./src/content/pages" }),
     schema: z.object({
         title: z.string(),
 
