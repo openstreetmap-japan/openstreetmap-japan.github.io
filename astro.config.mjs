@@ -7,6 +7,7 @@ import remarkPreserveIndent from './src/lib/remark-preserve-indent.mjs';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://openstreetmap-japan.github.io',
   integrations: [react()],
   markdown: {
     remarkPlugins: [remarkBreaks, remarkPreserveIndent],
