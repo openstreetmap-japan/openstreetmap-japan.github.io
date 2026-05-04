@@ -34,6 +34,7 @@ let Content: Awaited<ReturnType<typeof render>>["Content"] | null = null;
 let pageTitle = "";
 let pageDateLabel = "";
 let pageHeroImage: string | undefined;
+let pageDescription = "";
 
 if (props.kind === "page") {
     const rendered = await render(props.entry);
@@ -43,6 +44,11 @@ if (props.kind === "page") {
     const iso = (data.updated ?? data.date ?? "") as string;
     pageDateLabel = iso ? new Date(iso).toLocaleDateString("ja-JP") : "";
     pageHeroImage = data.hero_image;
+    pageDescription = (props.entry.body ?? "")
+        .replace(/<[^>]+>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 200) || `${pageTitle} - OpenStreetMap Japan`;
 }
 ---
 
@@ -62,7 +68,12 @@ if (props.kind === "page") {
 )}
 
 {props.kind === "page" && Content && (
-    <SiteLayout title={`${pageTitle} | OpenStreetMap Japan`}>
+    <SiteLayout
+        title={`${pageTitle} | OpenStreetMap Japan`}
+        description={pageDescription}
+        image={pageHeroImage}
+        ogType="article"
+    >
         <article class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">
             {pageHeroImage && (
                 <img src={pageHeroImage} alt="" class="w-full h-auto rounded mb-6" loading="eager" />

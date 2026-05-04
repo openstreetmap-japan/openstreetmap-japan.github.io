@@ -27,9 +27,20 @@ const points = (typeof data.longitude === "number" && typeof data.latitude === "
     venue_text: data.venue_text,
     start: data.start,
 }] : [];
+
+const ogDescription = (entry.body ?? "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 200) || data.venue_text || `${data.title} - OpenStreetMap Japan`;
 ---
 
-<SiteLayout title={`${data.title} | OpenStreetMap Japan`}>
+<SiteLayout
+    title={`${data.title} | OpenStreetMap Japan`}
+    description={ogDescription}
+    image={data.hero_image}
+    ogType="article"
+>
     <p class="text-sm mb-4"><a href="/events/" class="text-blue-700 hover:underline">← イベント一覧に戻る</a></p>
 
     <article class="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 shadow-sm">

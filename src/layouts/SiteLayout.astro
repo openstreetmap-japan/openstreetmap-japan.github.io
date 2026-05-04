@@ -4,12 +4,22 @@ import "../assets/app.css";
 type Props = {
   title?: string;
   description?: string;
+  /** Page-specific OG image. Absolute URL or root-relative path. */
+  image?: string;
+  /** og:type ("website" / "article") */
+  ogType?: "website" | "article";
 };
 
 const {
   title = "OpenStreetMap Japan",
   description = "OpenStreetMap (OSM) は、誰でも自由に地図を使えるよう、みんなでオープンデータの地理情報を作るプロジェクトです。",
+  image = "/images/assets/osm_logo.svg",
+  ogType = "website",
 } = Astro.props;
+
+const siteUrl = Astro.site ?? new URL("https://openstreetmap-japan.github.io/");
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).toString();
 ---
 
 <!DOCTYPE html>
@@ -19,8 +29,23 @@ const {
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate" type="application/rss+xml" title="OpenStreetMap Japan RSS" href="/rss.xml" />
+    <link rel="canonical" href={canonicalUrl} />
     <title>{title}</title>
     <meta name="description" content={description} />
+
+    <meta property="og:site_name" content="OpenStreetMap Japan" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={absImage} />
+    <meta property="og:locale" content="ja_JP" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@osmfj" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absImage} />
   </head>
 
   <body class="min-h-screen bg-gray-100 text-gray-900">
