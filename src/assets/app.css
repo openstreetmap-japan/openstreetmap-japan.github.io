@@ -25,3 +25,12 @@
   --tw-prose-th-borders: #d1d5db;    /* gray-300 */
   --tw-prose-td-borders: #e5e7eb;
 }
+
+/* daisyUI overrides inline <code> bg/border with --color-base-200/300, which
+   become near-black under prefers-color-scheme: dark. Pin them to gray. */
+:root .prose :where(code):not(pre > code) {
+  background-color: #f3f4f6;  /* gray-100 */
+  border-color: #e5e7eb;       /* gray-200 */
+  color: #111827;              /* gray-900 */
+}
+
