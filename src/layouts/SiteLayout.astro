@@ -172,6 +172,21 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
         </a>
 
         <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">マップを見る</h2>
+          <ul class="text-sm">
+            <li class="border-b border-gray-100">
+              <a href="https://www.openstreetmap.org/#map=5/35.70/141.45" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OpenStreetMap</a>
+            </li>
+            <li class="border-b border-gray-100">
+              <a href="https://tile.openstreetmap.jp/styles/openmaptiles#4.46/35.7/141.45" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OpenStreetMap Japan Tile Server</a>
+            </li>
+            <li>
+              <a href="https://overpass-turbo.eu/" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">Overpass Turbo (データ抽出)</a>
+            </li>
+          </ul>
+        </section>
+
+        <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">外部リンク</h2>
           <ul class="text-sm">
             <li class="border-b border-gray-100">
