@@ -22,10 +22,19 @@ export async function getStaticPaths() {
             props: { kind: "page", entry: p } satisfies Props,
         }));
 
-    const seen = new Set(eventPaths.map((x) => x.params.id));
-    const pagePathsDedup = pagePaths.filter((x) => !seen.has(x.params.id));
+    // Fail the build on legacy_node_id collisions so that pages don't get
+    // silently shadowed by events sharing the same numeric id (see issue #4).
+    const eventIds = new Set(eventPaths.map((x) => x.params.id));
+    const collisions = pagePaths.filter((x) => eventIds.has(x.params.id));
+    if (collisions.length > 0) {
+        const ids = collisions.map((c) => c.params.id).join(", ");
+        throw new Error(
+            `legacy_node_id collision with event ids: ${ids}. ` +
+                `Pages must not reuse an event's numeric id; pick a non-conflicting value.`,
+        );
+    }
 
-    return [...eventPaths, ...pagePathsDedup];
+    return [...eventPaths, ...pagePaths];
 }
 
 const props = Astro.props as Props;

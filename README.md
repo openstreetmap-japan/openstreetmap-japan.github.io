@@ -86,6 +86,10 @@ draft: false
 
 `legacy_node_id` を指定したページは `/node/<legacy_node_id>/` で配信されます。サイドバーのガイドリンクなど内部リンクもこの URL 形式で書いてください (例: `/node/762/`)。
 
+> ⚠️ **node ID は events と pages で必ず一意にしてください。**
+> `/node/<id>/` の URL は両コレクションで共有されます。`src/content/events/<id>.md` のファイル名 ID と `src/content/pages/*.md` の `legacy_node_id` が同じ値だと、`/node/<id>/` がイベント側へ吸われてページが見えなくなります (issue #4)。
+> 新しいページや新しいイベントを追加するときは、`src/content/events/` と `src/content/pages/` 両方を見て**未使用の番号**を選んでください。衝突したまま push しても `npm run build` がエラーで落ちるので、本番に出ることはありません。
+
 ### 3. 画像
 
 | ディレクトリ | 用途 | 参照パス |
