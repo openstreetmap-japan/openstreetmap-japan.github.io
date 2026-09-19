@@ -109,22 +109,24 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
           <li>
             <a href="https://openstreetmap.org/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="地図を閲覧し編集できるopenstreetmap.orgへ行きます">OpenStreetMap プロジェクトサイト</a>
           </li>
-          <li class="relative group">
-            <a href="/events/" class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">
-              <span>イベント</span>
-              <span class="text-xs">▾</span>
-            </a>
-            <ul class="absolute left-0 top-full hidden group-hover:block group-focus-within:block min-w-56 bg-white border border-gray-200 shadow-md z-20">
-              <li class="border-b border-gray-100">
-                <a href="https://forms.gle/nbBSvZXUkgRXfiA56" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="OpenStreetMapに関するイベント情報を投稿します。">イベント情報を投稿</a>
-              </li>
-              <li class="border-b border-gray-100">
-                <a href="/events/map/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント地図</a>
-              </li>
-              <li>
-                <a href="/events/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント一覧</a>
-              </li>
-            </ul>
+          <li class="relative">
+            <details data-event-menu>
+              <summary class="flex cursor-pointer list-none items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+                <span>イベント</span>
+                <span class="text-xs" aria-hidden="true">▾</span>
+              </summary>
+              <ul class="absolute left-0 top-full min-w-56 bg-white border border-gray-200 shadow-md z-20">
+                <li class="border-b border-gray-100">
+                  <a href="https://forms.gle/nbBSvZXUkgRXfiA56" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="OpenStreetMapに関するイベント情報を投稿します。">イベント情報を投稿</a>
+                </li>
+                <li class="border-b border-gray-100">
+                  <a href="/events/map/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント地図</a>
+                </li>
+                <li>
+                  <a href="/events/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">イベント一覧</a>
+                </li>
+              </ul>
+            </details>
           </li>
           <li>
             <a href="https://discord.gg/pNuUM99kUX" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">Discord</a>
@@ -255,3 +257,28 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
     </footer>
   </body>
 </html>
+
+<script>
+  const eventMenu = document.querySelector<HTMLDetailsElement>('[data-event-menu]');
+
+  if (eventMenu) {
+    document.addEventListener('click', (event) => {
+      if (event.target instanceof Node && !eventMenu.contains(event.target)) {
+        eventMenu.open = false;
+      }
+    });
+
+    eventMenu.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        eventMenu.open = false;
+        eventMenu.querySelector('summary')?.focus();
+      }
+    });
+
+    eventMenu.addEventListener('focusout', (event) => {
+      if (!(event.relatedTarget instanceof Node) || !eventMenu.contains(event.relatedTarget)) {
+        eventMenu.open = false;
+      }
+    });
+  }
+</script>
