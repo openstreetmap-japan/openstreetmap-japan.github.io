@@ -66,7 +66,7 @@ const now = Date.now();
 const items = sortFeed(events.filter((event) => event.expires! > now), (item: FeedItem) => item.date.getTime());
 const notices = [...pages].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
 const articles = (await getCollection("articles", ({ data }) => !data.draft))
-  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || a.id.localeCompare(b.id))
+  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || b.id.localeCompare(a.id))
   .slice(0, 3);
 const [featured, ...rest] = items;
 const list = rest.slice(0, 14);

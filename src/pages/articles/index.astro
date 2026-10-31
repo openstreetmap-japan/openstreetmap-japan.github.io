@@ -4,7 +4,7 @@ import ArticleList from "../../components/ArticleList.astro";
 import { getCollection } from "astro:content";
 
 const articles = (await getCollection("articles", ({ data }) => !data.draft))
-  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || a.id.localeCompare(b.id));
+  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || b.id.localeCompare(a.id));
 ---
 
 <SiteLayout title="記事紹介 | OpenStreetMap Japan" description="OpenStreetMapの入門、編集、データ活用や活動に関する記事を紹介します。">
