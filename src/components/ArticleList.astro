@@ -1,0 +1,26 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = { articles: CollectionEntry<"articles">[] };
+const { articles } = Astro.props;
+---
+
+<ul class="space-y-4">
+  {articles.map(({ data }) => (
+    <li>
+      <article class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-2">
+          {data.category && <span>{data.category}</span>}
+          {data.site && <span>{data.site}</span>}
+          {data.author && <span>著者: {data.author}</span>}
+          {data.published_date && <span>公開日: <time datetime={data.published_date}>{data.published_date}</time></span>}
+          <span>掲載日: <time datetime={data.added_date}>{data.added_date}</time></span>
+        </div>
+        <h2 class="text-lg font-bold leading-snug break-words">
+          <a href={data.url} class="text-blue-700 hover:underline">{data.title} <span class="text-sm font-normal">↗</span><span class="sr-only">（外部サイト）</span></a>
+        </h2>
+        <p class="mt-3 text-sm text-gray-700 leading-relaxed break-words">{data.summary}</p>
+      </article>
+    </li>
+  ))}
+</ul>

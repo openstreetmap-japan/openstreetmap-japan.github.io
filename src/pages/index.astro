@@ -2,6 +2,8 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 import { sortFeed } from "../lib/sort-feed.mjs";
+import ArticleList from "../components/ArticleList.astro";
+import { eventTiming } from "../lib/event-time.mjs";
 
 type FeedItem = {
   kind: "event" | "page";
@@ -9,6 +11,7 @@ type FeedItem = {
   href: string;
   date: Date;
   dateLabel: string;
+  expires?: number;
   hero_image?: string;
   venue_text?: string;
   body: string;
@@ -27,13 +30,15 @@ function excerpt(raw: string, max = 140): string {
 }
 
 const events = (await getCollection("events", ({ data }) => !data.draft)).map((e) => {
-  const d = new Date(e.data.start);
+  const timing = eventTiming(e.data.start);
+  const d = new Date(timing.start);
   return {
     kind: "event",
     title: e.data.title,
     href: `/events/${e.id}/`,
     date: d,
-    dateLabel: d.toLocaleDateString("ja-JP"),
+    dateLabel: d.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }),
+    expires: timing.expires,
     hero_image: e.data.hero_image,
     venue_text: e.data.venue_text,
     body: excerpt(e.body ?? ""),
@@ -57,14 +62,22 @@ const pages = (await getCollection("pages"))
     } satisfies FeedItem;
   });
 
-const items = sortFeed([...events, ...pages], (item: FeedItem) => item.date.getTime());
+const now = Date.now();
+const items = sortFeed(events.filter((event) => event.expires! > now), (item: FeedItem) => item.date.getTime());
+const notices = [...pages].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
+const articles = (await getCollection("articles", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || a.id.localeCompare(b.id))
+  .slice(0, 3);
 const [featured, ...rest] = items;
 const list = rest.slice(0, 14);
 ---
 
 <SiteLayout title="OpenStreetMap Japan | 自由な地図をみんなの手で / The Free Wiki World Map">
+  <section aria-labelledby="upcoming-heading">
+  <h1 id="upcoming-heading" class="text-2xl font-bold mb-4">開催予定のイベント</h1>
+  <p id="no-upcoming-events" hidden={items.length > 0} class="text-sm text-gray-600 mb-4">現在、開催予定のイベントはありません。</p>
   {featured && (
-    <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-6">
+    <article data-event-expires={featured.expires} class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-6">
       <a href={featured.href} class="block group">
         {featured.hero_image && (
           <img
@@ -96,7 +109,7 @@ const list = rest.slice(0, 14);
 
   <ul class="space-y-4">
     {list.map((item) => (
-      <li>
+      <li data-event-expires={item.expires}>
         <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
           <a href={item.href} class="flex flex-col sm:flex-row group">
             <div class="sm:w-56 sm:flex-shrink-0">
@@ -136,7 +149,52 @@ const list = rest.slice(0, 14);
 
   <div class="mt-6 text-center">
     <a href="/events/" class="inline-block px-5 py-2 border border-gray-300 rounded-md bg-white text-sm text-gray-700 hover:bg-gray-50">
-      一覧をもっと見る →
+      過去のイベント・お知らせも見る →
     </a>
   </div>
+  </section>
+
+  {articles.length > 0 && (
+    <section aria-labelledby="articles-heading" class="mt-10">
+      <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+        <h2 id="articles-heading" class="text-2xl font-bold">最近紹介した記事</h2>
+        <a href="/articles/" class="text-sm text-blue-700 hover:underline">記事一覧を見る →</a>
+      </div>
+      <ArticleList articles={articles} />
+    </section>
+  )}
+
+  {notices.length > 0 && (
+    <section aria-labelledby="notices-heading" class="mt-10">
+      <h2 id="notices-heading" class="text-2xl font-bold mb-4">お知らせ</h2>
+      <ul class="space-y-4">
+        {notices.map((item) => (
+          <li class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+            {item.dateLabel && <p class="text-xs text-gray-500 mb-2">{item.dateLabel}</p>}
+            <h3 class="font-bold"><a href={item.href} class="text-blue-700 hover:underline">{item.title}</a></h3>
+            {item.body && <p class="mt-2 text-sm text-gray-700">{item.body}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </SiteLayout>
+
+<script>
+  // Static pages can outlive the build: expire events without requiring a new build.
+  function updateUpcomingEvents() {
+    const now = Date.now();
+    const cards = document.querySelectorAll<HTMLElement>("[data-event-expires]");
+    let upcoming = 0;
+    cards.forEach((card) => {
+      const expired = Number(card.dataset.eventExpires) <= now;
+      card.hidden = expired;
+      if (!expired) upcoming++;
+    });
+    const empty = document.getElementById("no-upcoming-events");
+    if (empty) empty.hidden = upcoming > 0;
+  }
+  updateUpcomingEvents();
+  window.setInterval(updateUpcomingEvents, 60_000);
+  document.addEventListener("visibilitychange", updateUpcomingEvents);
+</script>

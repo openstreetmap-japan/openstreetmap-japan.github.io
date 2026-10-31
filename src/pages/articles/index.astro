@@ -1,0 +1,18 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { getCollection } from "astro:content";
+
+const articles = (await getCollection("articles", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || a.id.localeCompare(b.id));
+---
+
+<SiteLayout title="記事紹介 | OpenStreetMap Japan" description="OpenStreetMapの入門、編集、データ活用や活動に関する記事を紹介します。">
+  <h1 class="text-2xl font-bold mb-2">記事紹介</h1>
+  <p class="mb-6 text-sm text-gray-600">OpenStreetMapに関する外部の記事を、掲載が新しい順に紹介します。</p>
+  {articles.length > 0 ? (
+    <ArticleList articles={articles} />
+  ) : (
+    <p class="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-600">紹介記事はまだありません。</p>
+  )}
+</SiteLayout>

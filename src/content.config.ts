@@ -1,5 +1,6 @@
 import { defineCollection, z } from "astro:content"
 import { glob } from "astro/loaders"
+import { toolCategories } from "./lib/tool-categories"
 
 /**
  * Events
@@ -73,4 +74,33 @@ export const pages = defineCollection({
     }),
 })
 
-export const collections = { events, pages }
+/** External articles, managed separately from events and site notices. */
+export const articles = defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./src/content/articles" }),
+    schema: z.object({
+        title: z.string(),
+        url: z.string().url().refine((value) => /^https?:\/\//.test(value), "HTTP(S) URL required"),
+        summary: z.string(),
+        added_date: z.string().date(),
+        published_date: z.string().date().optional(),
+        author: z.string().optional(),
+        site: z.string().optional(),
+        category: z.string().optional(),
+        draft: z.boolean().optional().default(false),
+    }),
+})
+
+/** OSM tools, independent of article introductions and events. */
+export const tools = defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./src/content/tools" }),
+    schema: z.object({
+        title: z.string().trim().min(1),
+        url: z.string().url().refine((value) => /^https?:\/\//.test(value), "HTTP(S) URL required"),
+        summary: z.string().trim().min(1),
+        category: z.enum(toolCategories).default("その他"),
+        platforms: z.array(z.string().trim().min(1)).default([]),
+        draft: z.boolean().optional().default(false),
+    }),
+})
+
+export const collections = { events, pages, articles, tools }
