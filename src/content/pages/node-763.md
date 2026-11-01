@@ -5,54 +5,42 @@ legacy_node_id: "763"
 source_url: "https://openstreetmap.jp/node/763"
 date: "2018-11-05T14:03:37+09:00"
 ---
-OpenStreetMapの編集は、このサイトではなく、"<a href="openstreetmap.org">openstreetmap.org</a>" から行うことが可能です。
-openstreetmap.orgへ移動し、OSMの利用規約をよく読んで、ユーザ登録を行ってください。
+OpenStreetMap（OSM）の地図は、誰でも編集に参加できます。PCではブラウザで使える「iD」、スマートフォンでは現地の情報を登録できる「Every Door」から始めてみましょう。
 
-<h2>iDによる編集</h2>
+## はじめに
 
-iDエディタは openstreetmap.orgから起動することのできるブラウザ内エディタで、主に初心者による利用や、軽量の編集が想定されています。
+[OpenStreetMapでアカウントを作成](https://www.openstreetmap.org/user/new)すると、各エディタからログインして編集を保存できます。まずは、よく知っているお店の名前や営業時間など、小さな修正から試してみましょう。
 
-openstreetmap.orgにログインし、画面左上の "編集" メニューをクリックしてください。（編集の右にある ▼をクリックし、iDエディタを選択することもできます）
+## PCで編集する：iD
 
-ブラウザ内でiDエディタが起動します。
+iDは、ソフトウェアのインストールが不要なブラウザ内エディタです。お店の情報の更新や、道路・建物などの追加に使えます。
 
-最初はいきなり編集を開始せず、チュートリアルを参照されることをお勧めします。
+1. [OpenStreetMap](https://www.openstreetmap.org/)にログインし、編集したい場所を表示します。
+2. 「編集」メニューからiDを起動します。
+3. 最初にチュートリアルを試して、基本操作を練習します。
+4. 情報を追加・修正し、変更内容を説明するコメントを添えて保存します。
 
-操作がわからなくなった場合は、画面右側のヘルプボタンから詳しい解説を表示させることも可能です。
+詳しい操作は、[LearnOSMのiDエディタ入門](https://learnosm.org/ja/beginner/id-editor/)や、iD内のヘルプをご覧ください。
 
-iDエディタの詳しい使い方については、LearnOSMを参照してください。
+## スマホで編集する：Every Door
 
-http://learnosm.org/ja/beginner/id-editor/
+[Every Door](https://every-door.app/)は、まち歩きの途中でお店や施設、入口、ベンチなどの情報を追加・更新できるアプリです。身近な場所で、実際に確認した情報を登録したい方におすすめです。
 
-<h2>JOSMによる編集</h2>
+アプリからOSMアカウントにログインし、周辺のデータをダウンロードして編集します。編集後は、変更をアップロードするとOSMに反映されます。
 
-中級者から上級者むけに公開・開発されているエディタとして、JOSMがあります。
+使い始めの手順は、[Every Doorのクイックスタート（英語）](https://every-door.app/guide/quick_start/)をご覧ください。
 
-JOSM配布サイト
+## その他の編集アプリ
 
-上記サイトからJOSMをダウンロードし、端末にインストールして利用してください。
+目的に合わせて、次のアプリも利用できます。
 
-JOSMエディタの詳しい使い方については、LearnOSMを参照してください。
+- [StreetComplete](https://streetcomplete.app/) — 現地で路面や設備などについての簡単な質問に答えて、地図に足りない情報を補います。
+- [Vespucci](https://vespucci.io/) — Android向けのエディタです。道路や建物の形なども含め、詳しく編集したいときに使えます。
+- [JOSM](https://josm.openstreetmap.de/) — PCにインストールして使う高機能なエディタです。複雑な編集や、プラグインを使った作業にも対応しています。
 
-<h2>スマートフォンからの編集</h2>
-PushpinやVespucciなどのアプリケーションを利用することで、スマートフォンからの編集を行うことも可能です。
+## 困ったとき・もっと知りたいとき
 
-<h2>OSMのデータ構造</h2>
-OSMでは、地理空間情報を「ノード」「ウェイ」「閉じたウェイ」「リレーション」という4つの構造を組み合わせることによって記録します。
-
-詳しい解説は、TomG3XさんによるスライドのP.XXから、およびLearnOSMを参照してください。
-
-<h2>オブジェクトへのタグづけ</h2>
-OSMでは、ノードやウェイといった位置データに対して "タグ" を組み合わせて付与することによって、地球上のあらゆる地物を表現します。
-
-地球上のすべての事柄を表現しようとするため、OSMで使われているタグは非常に多岐にわたっています。
-
-よく使われるタグについては、以下のページにまとめられています。
-また、以下のタグ以外でよく使われているタグを検索するには、Taginfoツールを使用して、よく使われているタグを採用することも可能です。
-
-また、特に日本地域にのみ見られる店舗や施設などにタグ付けを行う場合など、「こんな時にどんなタグをつけたらよいのだろう？」と疑問に思った場合は、Talk-jaメーリングリストやTwitterなどのSNSを利用して、質問をしてみてください。
-
-<ul>
-<li><a href="http://wiki.openstreetmap.org/wiki/Map_Features">http://wiki.openstreetmap.org/wiki/Map_Features</a></li>
-<li><a href="https://wiki.openstreetmap.org/wiki/JA:How_to_map_a">http://wiki.openstreetmap.org/wiki/JA:How_to_map_a</a></li>
-</ul>
+- [OSMのデータ構造（OSM Wiki）](https://wiki.openstreetmap.org/wiki/JA:Elements) — ノード・ウェイ・リレーションの仕組みを説明しています。
+- [タグの一覧（OSM Wiki）](https://wiki.openstreetmap.org/wiki/JA:Map_Features) — 地物の種類や属性を表すタグを調べられます。
+- [OpenStreetMap Japan Discord](https://discord.gg/pNuUM99kUX) — 編集方法やタグ付けに迷ったときなどに、日本のコミュニティで相談できます。
+- [ツール紹介](/tools/) — OpenStreetMap関連のツールやサービスを探せます。
