@@ -9,7 +9,10 @@
   - **280文字以内**に収める
   - **ですます調**で書く（例:「…を紹介しています」「…人に推奨です」）
   - 記事の内容＋誰に役立つかを述べる
-- コミット前に summary の文字数が 280 以内であることを必ず確認すること（例: `python3 -c "import re; s=re.search(r'^summary: \"(.*?)\"$', re.match(r'^---\n(.*?)\n---', open('ファイル').read(), re.S).group(1), re.M).group(1); print(len(s))"`）
+  - ツール紹介の記事（特定のツール・サービスの紹介やレビュー記事）は **200文字以内**にする
+    - **ですます調**で書く
+    - ツールのどんな機能があるか、どんな方向けかを簡潔に述べる
+- コミット前に summary の文字数が上限（通常 280、ツール紹介は 200）以内であることを必ず確認すること（例: `python3 -c "import re; s=re.search(r'^summary: \"(.*?)\"$', re.match(r'^---\n(.*?)\n---', open('ファイル').read(), re.S).group(1), re.M).group(1); print(len(s))"`）
 - 追加後は `npx astro build` でビルドし、トップページと /articles/ に記事が表示されることを確認すること
 
 詳細は `src/content/articles/README.txt` を参照。

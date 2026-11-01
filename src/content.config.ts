@@ -97,7 +97,7 @@ export const tools = defineCollection({
         title: z.string().trim().min(1),
         url: z.string().url().refine((value) => /^https?:\/\//.test(value), "HTTP(S) URL required"),
         summary: z.string().trim().min(1),
-        category: z.enum(toolCategories).default("その他"),
+        category: z.array(z.enum(toolCategories)).default(["その他"]),
         platforms: z.array(z.string().trim().min(1)).default([]),
         draft: z.boolean().optional().default(false),
     }),
