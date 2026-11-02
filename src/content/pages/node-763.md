@@ -42,5 +42,6 @@ iDは、ソフトウェアのインストールが不要なブラウザ内エデ
 
 - [OSMのデータ構造（OSM Wiki）](https://wiki.openstreetmap.org/wiki/JA:Elements) — ノード・ウェイ・リレーションの仕組みを説明しています。
 - [タグの一覧（OSM Wiki）](https://wiki.openstreetmap.org/wiki/JA:Map_Features) — 地物の種類や属性を表すタグを調べられます。
+- [データインポート](/node/765/) — 外部のデータをまとめて取り込む際の手順や、事前に必要な相談について確認できます。
 - [OpenStreetMap Japan Discord](https://discord.gg/pNuUM99kUX) — 編集方法やタグ付けに迷ったときなどに、日本のコミュニティで相談できます。
 - [ツール紹介](/tools/) — OpenStreetMap関連のツールやサービスを探せます。

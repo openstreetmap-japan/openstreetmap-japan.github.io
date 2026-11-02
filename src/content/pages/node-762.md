@@ -11,6 +11,8 @@ OpenStreetMap（OSM）は、地図の閲覧だけでなく、印刷やウェブ�
 
 [OSM Wiki「OpenStreetMapを利用する」](https://wiki.openstreetmap.org/wiki/JA:OpenStreetMapを利用する)では、OSMの使い方や関連する情報を目的別に探せます。
 
+[LearnOSM（日本語）](https://learnosm.org/ja/)では、OSMの基本や地図の編集方法、データの利用方法を学べます。初めてOSMに触れる方におすすめです。
+
 ## 地図を見る・印刷する・埋め込む
 
 - [OpenStreetMapで地図を見る](https://www.openstreetmap.org/) — 世界中の地図を閲覧できます。
