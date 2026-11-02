@@ -51,7 +51,7 @@ if (props.kind === "page") {
     const data = props.entry.data;
     pageTitle = data.title;
     const iso = (data.updated ?? data.date ?? "") as string;
-    pageDateLabel = iso ? new Date(iso).toLocaleDateString("ja-JP") : "";
+    pageDateLabel = iso ? new Date(iso).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }) : "";
     pageHeroImage = data.hero_image;
     pageDescription = (props.entry.body ?? "")
         .replace(/<[^>]+>/g, "")

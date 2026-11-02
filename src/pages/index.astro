@@ -56,7 +56,7 @@ const pages = (await getCollection("pages"))
       title: p.data.title,
       href: `/node/${p.data.legacy_node_id}/`,
       date: d,
-      dateLabel: iso ? d.toLocaleDateString("ja-JP") : "",
+      dateLabel: iso ? d.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }) : "",
       hero_image: p.data.hero_image,
       body: excerpt(p.body ?? ""),
     } satisfies FeedItem;
