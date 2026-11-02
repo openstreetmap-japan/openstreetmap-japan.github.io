@@ -23,7 +23,16 @@ export async function GET(context: APIContext) {
             };
         });
 
-    const items = [...events, ...pages]
+    const articles = (await getCollection("articles", ({ data }) => !data.draft))
+        .sort((a, b) => b.data.added_date.localeCompare(a.data.added_date) || b.id.localeCompare(a.id))
+        .map((article) => ({
+            title: article.data.title,
+            link: article.data.url,
+            description: article.data.summary,
+            pubDate: new Date(`${article.data.added_date}T00:00:00+09:00`),
+        }));
+
+    const items = [...events, ...pages, ...articles]
         .sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime())
         .slice(0, 30);
 
