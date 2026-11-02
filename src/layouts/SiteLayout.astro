@@ -168,6 +168,9 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
             <a href="https://www.osmf.jp/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">運営組織</a>
           </li>
           <li>
+            <a href="https://forms.gle/XCYDVh6oRy1sgrcV9" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="Googleフォームでお問い合わせ">お問い合わせ</a>
+          </li>
+          <li>
             <a
               href="https://github.com/openstreetmap-japan/openstreetmap-japan.github.io"
               class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700"
@@ -223,7 +226,7 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
         </a>
 
         <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">マップを見る</h2>
+          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">関連サイト</h2>
           <ul class="text-sm">
             <li class="border-b border-gray-100">
               <a href="https://www.openstreetmap.org/#map=5/35.70/141.45" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OpenStreetMap</a>
@@ -231,15 +234,6 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
             <li class="border-b border-gray-100">
               <a href="https://tile.openstreetmap.jp/styles/openmaptiles#4.46/35.7/141.45" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">OpenStreetMap Japan Tile Server</a>
             </li>
-            <li>
-              <a href="https://overpass-turbo.eu/" target="_blank" rel="noopener" class="block px-4 py-2 text-blue-700 hover:bg-gray-50">Overpass Turbo (データ抽出)</a>
-            </li>
-          </ul>
-        </section>
-
-        <section class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <h2 class="text-sm font-bold bg-gray-50 border-b border-gray-200 px-4 py-2 text-gray-700">外部リンク</h2>
-          <ul class="text-sm">
             <li class="border-b border-gray-100">
               <a href="http://learnosm.org/ja/" class="block px-4 py-2 text-blue-700 hover:bg-gray-50" title="LearnOSMでは、OSM初心者を主な対象に、概要や編集方法、利用方法について解説が行われています">LearnOSM</a>
             </li>
@@ -310,7 +304,10 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
 
     <footer class="border-t border-gray-200 bg-white mt-8">
       <div class="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-gray-600">
+        <a href="https://forms.gle/XCYDVh6oRy1sgrcV9" class="mb-2 inline-flex min-h-11 items-center px-3 text-blue-700 underline hover:text-blue-900" title="Googleフォームでお問い合わせ">お問い合わせ</a>
+        <div>
         Copyright © {new Date().getFullYear()}, OpenStreetMap Japan
+        </div>
       </div>
     </footer>
   </body>

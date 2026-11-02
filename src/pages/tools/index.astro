@@ -12,9 +12,9 @@ const categories = toolCategories.map((category) => ({
 })).filter(({ count }) => count > 0);
 ---
 
-<SiteLayout title="ツール集 | OpenStreetMap Japan" description="OpenStreetMapの閲覧、編集、現地調査やデータ活用に役立つツールを紹介します。">
-  <h1 class="text-2xl font-bold mb-2">ツール集</h1>
-  <p class="mb-6 text-sm text-gray-600">Discordで紹介されたOpenStreetMap関連のツールやサービスを紹介します。</p>
+<SiteLayout title="ツール紹介 | OpenStreetMap Japan" description="OpenStreetMapの閲覧、編集、現地調査やデータ活用に役立つツールを紹介します。">
+  <h1 class="text-2xl font-bold mb-2">ツール紹介</h1>
+  <p class="mb-6 text-sm text-gray-600"><a href="https://discord.gg/pNuUM99kUX" class="text-blue-700 underline hover:text-blue-900">Discord</a>で紹介されたOpenStreetMap関連のツールやサービスを紹介します。</p>
 
   {tools.length > 0 ? (
     <>

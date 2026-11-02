@@ -5,10 +5,10 @@ legacy_node_id: "767"
 source_url: "https://openstreetmap.jp/node/767"
 date: "2015-10-26T20:02:39+09:00"
 ---
-日本のOpenStreetMapを支援するために、一般社団法人として <a href="http://www.osmf.jp/">"オープンストリートマップ・ファウンデーション・ジャパン"</a> が組織されています。
+一般社団法人オープンストリートマップ・ファウンデーション・ジャパン（OSMFJ）は、日本のOpenStreetMapコミュニティを支援する団体です。OpenStreetMap Foundation（OSMF）に認定された、日本の[公式地方支部（Local Chapter）](https://osmfoundation.org/wiki/Local_Chapters)として活動しています。
 
-こちらの組織は、<a href="http://wiki.osmfoundation.org/wiki/Main_Page">英国OpenStreetMap Foundation</a>の地域支部を申請中であり、日本のOSMコミュニティコミュニティ有志によって構成されています。そのため、OSMコミュニティとは深い関係はありますが、別の組織体となっています。
+主な活動は、State of the Map Japanの開催、関連団体との連携、コミュニティ向けサーバーの運用などです。
 
-OSMFJでは、日本地域のマッピングパーティの支援や、日本独自レンダリングの開発、法人格が必要な場合の他団体・組織との交渉や契約を実施しています。
-OSMの編集や活動を行うにあたってOSMFJの会員登録や契約は必要ありませんが、OSMFJへの寄付や参加を行うことで、日本地域のOSM活動を全体として支援することにつながります。
-OSMFJについて詳しい情報は、<a href="http://www.osmf.jp/">OSMFJの公式ページ</a>を参照してください。
+OSMの編集やコミュニティへの参加に、OSMFJへの入会は必要ありません。OSMFJの活動は、会員としての参加や寄付でも支援できます。
+
+活動内容や入会・支援については、[OSMFJ公式サイト](https://www.osmf.jp/)をご覧ください。
