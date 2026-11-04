@@ -53,9 +53,10 @@ const initialSlice = items.slice(0, PER_PAGE);
 <SiteLayout title="イベント・ページ一覧 | OpenStreetMap Japan">
   <h1 class="text-2xl font-bold mb-2">イベント・ページ一覧</h1>
 
-  <p class="mb-4 text-sm">
-    <a href="/events/map/" class="text-blue-700 hover:underline">イベント地図</a>
-  </p>
+  <nav aria-label="イベント関連リンク" class="mb-4 flex flex-wrap items-center justify-between gap-x-4 text-sm">
+    <a href="/events/map/" class="inline-flex min-h-11 items-center text-blue-700 hover:underline">イベント地図</a>
+    <a href="https://forms.gle/nbBSvZXUkgRXfiA56" class="inline-flex min-h-11 items-center text-blue-700 hover:underline">イベント情報を投稿する</a>
+  </nav>
 
   <ul id="feed" class="space-y-4">
     {initialSlice.map((item) => (
