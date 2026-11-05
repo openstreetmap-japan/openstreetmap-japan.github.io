@@ -126,7 +126,7 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
             <a href="https://openstreetmap.org/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="地図を閲覧し編集できるopenstreetmap.orgへ行きます">地図の閲覧・編集</a>
           </li>
           <li class="relative">
-            <details data-event-menu>
+            <details data-event-menu data-nav-submenu>
               <summary class="flex cursor-pointer list-none items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
                 <span>イベント</span>
                 <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -152,14 +152,29 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
           <li class="site-primary-duplicate">
             <a href="/tools/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">ツール紹介</a>
           </li>
-          <li>
-            <a href="https://www.facebook.com/groups/osmjapan" target="_blank" rel="noopener me" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="Facebook グループ OpenStreetMap Japan Community">Facebook</a>
-          </li>
-          <li>
-            <a href="/node/751/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="議論しましょう">掲示板</a>
-          </li>
-          <li>
-            <a href="/node/27/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="メーリングリストのご案内">ML案内</a>
+          <li class="relative">
+            <details data-nav-submenu>
+              <summary class="flex cursor-pointer list-none items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden">
+                <span>コミュニティ</span>
+                <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <ul class="absolute left-0 top-full min-w-56 bg-white border border-gray-200 shadow-md z-20">
+                <li class="border-b border-gray-100">
+                  <a href="https://discord.gg/pNuUM99kUX" target="_blank" rel="noopener me" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700">Discord</a>
+                </li>
+                <li class="border-b border-gray-100">
+                  <a href="https://www.facebook.com/groups/osmjapan" target="_blank" rel="noopener me" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="Facebook グループ OpenStreetMap Japan Community">Facebook</a>
+                </li>
+                <li class="border-b border-gray-100">
+                  <a href="/node/751/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="議論しましょう">掲示板</a>
+                </li>
+                <li>
+                  <a href="/node/27/" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="メーリングリストのご案内">メーリングリスト</a>
+                </li>
+              </ul>
+            </details>
           </li>
           <li>
             <a href="/node/29/" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="ライセンスとプライバシーポリシーについて">ライセンス</a>
@@ -169,20 +184,6 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
           </li>
           <li>
             <a href="https://forms.gle/XCYDVh6oRy1sgrcV9" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700" title="Googleフォームでお問い合わせ">お問い合わせ</a>
-          </li>
-          <li>
-            <a
-              href="https://github.com/openstreetmap-japan/openstreetmap-japan.github.io"
-              class="flex items-center gap-1 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-700"
-              title="GitHub リポジトリ"
-              target="_blank"
-              rel="noopener"
-            >
-              <svg viewBox="0 0 16 16" class="w-4 h-4" fill="currentColor" aria-hidden="true">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-              </svg>
-              <span>GitHub</span>
-            </a>
           </li>
         </ul>
         </nav>
@@ -201,7 +202,7 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
           if (!desktop.matches && !menu.contains(event.target)) menu.open = false;
         });
         menu.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape' && !desktop.matches && !event.target.closest('[data-event-menu]')) {
+          if (event.key === 'Escape' && !desktop.matches && !event.target.closest('[data-nav-submenu]')) {
             menu.open = false;
             menu.querySelector('summary').focus();
           }
@@ -305,6 +306,18 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
     <footer class="border-t border-gray-200 bg-white mt-8">
       <div class="mx-auto max-w-6xl px-4 py-6 text-center text-sm text-gray-600">
         <a href="https://forms.gle/XCYDVh6oRy1sgrcV9" class="mb-2 inline-flex min-h-11 items-center px-3 text-blue-700 underline hover:text-blue-900" title="Googleフォームでお問い合わせ">お問い合わせ</a>
+        <a
+          href="https://github.com/openstreetmap-japan/openstreetmap-japan.github.io"
+          class="mb-2 inline-flex min-h-11 items-center gap-1 px-3 text-blue-700 underline hover:text-blue-900"
+          title="GitHub リポジトリ"
+          target="_blank"
+          rel="noopener"
+        >
+          <svg viewBox="0 0 16 16" class="w-4 h-4" fill="currentColor" aria-hidden="true">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
         <div>
         Copyright © {new Date().getFullYear()}, OpenStreetMap Japan
         </div>
@@ -314,28 +327,28 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
 </html>
 
 <script>
-  const eventMenu = document.querySelector<HTMLDetailsElement>('[data-event-menu]');
+  const submenus = document.querySelectorAll<HTMLDetailsElement>('[data-nav-submenu]');
 
-  if (eventMenu) {
+  submenus.forEach((submenu) => {
     document.addEventListener('click', (event) => {
-      if (event.target instanceof Node && !eventMenu.contains(event.target)) {
-        eventMenu.open = false;
+      if (event.target instanceof Node && !submenu.contains(event.target)) {
+        submenu.open = false;
       }
     });
 
-    eventMenu.addEventListener('keydown', (event) => {
+    submenu.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
-        eventMenu.open = false;
-        eventMenu.querySelector('summary')?.focus();
+        submenu.open = false;
+        submenu.querySelector('summary')?.focus();
       }
     });
 
-    eventMenu.addEventListener('focusout', (event) => {
-      if (!(event.relatedTarget instanceof Node) || !eventMenu.contains(event.relatedTarget)) {
-        eventMenu.open = false;
+    document.addEventListener('keyup', (event) => {
+      if (event.key === 'Tab' && !submenu.contains(document.activeElement)) {
+        submenu.open = false;
       }
     });
-  }
+  });
 </script>
 
 <style>
@@ -423,7 +436,7 @@ const absImage = /^https?:\/\//.test(image) ? image : new URL(image, siteUrl).to
       padding: 0.75rem;
       font-size: 1rem;
     }
-    .site-menu [data-event-menu] > ul {
+    .site-menu [data-nav-submenu] > ul {
       position: static;
       min-width: 0;
       margin: 0 0 0.5rem 0.75rem;
