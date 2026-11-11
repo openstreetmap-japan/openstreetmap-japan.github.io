@@ -32,13 +32,15 @@ function excerpt(raw: string, max = 140): string {
 const events = (await getCollection("events", ({ data }) => !data.draft)).map((e) => {
   const timing = eventTiming(e.data.start);
   const d = new Date(timing.start);
+  // Show period-type events (e.g. submissions) until their end date, not just the start.
+  const expires = e.data.end ? eventTiming(e.data.end).expires : timing.expires;
   return {
     kind: "event",
     title: e.data.title,
     href: `/events/${e.id}/`,
     date: d,
     dateLabel: d.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" }),
-    expires: timing.expires,
+    expires,
     hero_image: e.data.hero_image,
     venue_text: e.data.venue_text,
     body: excerpt(e.body ?? ""),
