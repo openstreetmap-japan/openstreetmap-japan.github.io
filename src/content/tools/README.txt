@@ -2,12 +2,14 @@
 
 このフォルダに1ツールにつき1つのMarkdownファイル（例: tool-name.md）を追加します。
 /tools/ に名前順で表示し、カテゴリボタンで絞り込めます。
+トップページには added_date が新しい3件を表示します。新規登録時は追加日を必ず指定してください。
 ツールの公式サイトへのリンクと、何に使えるかを短く紹介してください。
 
 ---
 title: "ツール名"
 url: "https://example.com/"
 summary: "何ができて、どんなときに役立つツールなのかを紹介します。"
+added_date: "2026-11-18"
 category:
   - "地図編集"
   - "地図閲覧"
@@ -17,6 +19,7 @@ draft: false
 ---
 
 必須: title、url（http/https）、summary
+新規登録時に必須: added_date（追加日、YYYY-MM-DD）
 任意: category（文字列の配列、複数指定可）、platforms（文字列の配列）、draft
 不明な任意項目は省略できます。category を省略すると「その他」になります。
 category は複数指定できます。指定した各カテゴリで絞り込め、「すべて」では1ツールにつき1件だけ表示します。

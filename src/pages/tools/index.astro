@@ -13,23 +13,40 @@ const categories = toolCategories.map((category) => ({
 ---
 
 <SiteLayout title="ツール紹介 | OpenStreetMap Japan" description="OpenStreetMapの閲覧、編集、現地調査やデータ活用に役立つツールを紹介します。">
-  <h1 class="text-2xl font-bold mb-2">ツール紹介</h1>
+  <div class="mb-2 flex items-center justify-between gap-3">
+    <h1 class="shrink-0 text-2xl font-bold">ツール紹介</h1>
+    {tools.length > 0 && (
+      <div id="tool-export-control" hidden>
+        <button id="tool-export" type="button" aria-describedby="tool-export-help" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-blue-700 px-3 py-2 text-sm text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0">
+            <path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5" />
+          </svg>
+          <span>ブックマーク用HTMLをダウンロード</span>
+        </button>
+      </div>
+    )}
+  </div>
   <p class="mb-6 text-sm text-gray-600"><a href="https://discord.gg/pNuUM99kUX" class="text-blue-700 underline hover:text-blue-900">Discord</a>で紹介されたOpenStreetMap関連のツールやサービスを紹介します。</p>
 
   {tools.length > 0 ? (
     <>
       <div id="tool-filters" hidden>
+        <label for="tool-search" class="mb-2 block text-sm font-bold">キーワード検索</label>
+        <input id="tool-search" type="search" placeholder="タイトル・サマリー・URLを検索" aria-controls="tool-results" aria-describedby="tool-search-help" class="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:outline-2 focus:outline-blue-700" />
+        <p id="tool-search-help" class="mb-4 text-xs text-gray-600">スペースで区切ると、すべてのキーワードを含むツールを表示します。カテゴリと組み合わせて検索できます。</p>
         <div role="group" aria-label="ツールのカテゴリで絞り込み" class="mb-3 flex flex-wrap gap-2">
           <button type="button" class="tool-filter" data-filter-category="" aria-pressed="true" aria-controls="tool-results">すべて（{tools.length}）</button>
           {categories.map(({ category, count }) => (
             <button type="button" class="tool-filter" data-filter-category={category} aria-pressed="false" aria-controls="tool-results">{category}（{count}）</button>
           ))}
         </div>
+        <p id="tool-export-help" class="mb-4 text-xs text-gray-600">表示中のツールを「OSMツール」フォルダにまとめて書き出します。ブラウザのブックマーク管理画面からHTMLファイルをインポートしてください。取り込み後は自動更新されません。</p>
       </div>
       <p id="tool-count" class="mb-4 text-sm text-gray-600" aria-live="polite" aria-atomic="true">{tools.length}件のツール・サービス</p>
+      <p id="tool-empty" hidden class="mb-4 text-sm text-gray-600">条件に一致するツールはありません。キーワードやカテゴリを変更してください。</p>
       <ul id="tool-results" class="space-y-4">
         {tools.map(({ data }) => (
-          <li data-tool-categories={JSON.stringify(getCategories(data.category))}>
+          <li data-tool-categories={JSON.stringify(getCategories(data.category))} data-tool-title={data.title} data-tool-summary={data.summary} data-tool-url={data.url}>
             <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
               <p class="mb-2 text-xs text-gray-500">{getCategories(data.category).join(" / ")}</p>
               <h2 class="text-lg font-bold leading-snug break-words">
@@ -54,24 +71,69 @@ const categories = toolCategories.map((category) => ({
   const filters = document.getElementById("tool-filters");
   const results = document.getElementById("tool-results");
   const count = document.getElementById("tool-count");
+  const search = document.querySelector<HTMLInputElement>("#tool-search");
+  const exportButton = document.querySelector<HTMLButtonElement>("#tool-export");
+  const empty = document.getElementById("tool-empty");
 
-  if (filters && results && count) {
+  if (filters && results && count && search && exportButton && empty) {
+    const normalize = (value: string) => value.normalize("NFKC").toLocaleLowerCase("ja");
     const buttons = filters.querySelectorAll<HTMLButtonElement>("[data-filter-category]");
     const items = [...results.querySelectorAll<HTMLLIElement>("[data-tool-categories]")]
-      .map((element) => ({ element, categories: JSON.parse(element.dataset.toolCategories!) as string[] }));
+      .map((element) => ({
+        element,
+        categories: JSON.parse(element.dataset.toolCategories!) as string[],
+        title: element.dataset.toolTitle!,
+        url: element.dataset.toolUrl!,
+        searchText: normalize([element.dataset.toolTitle, element.dataset.toolSummary, element.dataset.toolUrl].join("\n")),
+      }));
+    let category = "";
+    const update = () => {
+      const keywords = normalize(search.value).trim().split(/\s+/).filter(Boolean);
+      let visible = 0;
+      items.forEach((item) => {
+        item.element.hidden = (category !== "" && !item.categories.includes(category))
+          || !keywords.every((keyword) => item.searchText.includes(keyword));
+        if (!item.element.hidden) visible++;
+      });
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String((button.dataset.filterCategory ?? "") === category)));
+      count.textContent = `${visible}件のツール・サービス`;
+      empty.hidden = visible !== 0;
+      exportButton.disabled = visible === 0;
+    };
+    search.addEventListener("input", update);
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        const category = button.dataset.filterCategory ?? "";
-        let visible = 0;
-        items.forEach(({ element, categories }) => {
-          element.hidden = category !== "" && !categories.includes(category);
-          if (!element.hidden) visible++;
-        });
-        buttons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
-        count.textContent = `${visible}件のツール・サービス`;
+        category = button.dataset.filterCategory ?? "";
+        update();
       });
     });
+    const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[character]!);
+    exportButton.addEventListener("click", () => {
+      const visibleItems = items.filter(({ element }) => !element.hidden);
+      if (visibleItems.length === 0) return;
+      const links = visibleItems.map(({ title, url }) => `    <DT><A HREF="${escapeHtml(url)}">${escapeHtml(title)}</A>`);
+      const html = [
+        "<!DOCTYPE NETSCAPE-Bookmark-file-1>",
+        '<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">',
+        "<TITLE>OSMツール</TITLE>", "<H1>OSMツール</H1>",
+        "<DL><p>", "  <DT><H3>OSMツール</H3>", "  <DL><p>",
+        ...links, "  </DL><p>", "</DL><p>", "",
+      ].join("\n");
+      const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "osm-tools-bookmarks.html";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    update();
     filters.hidden = false;
+    const exportControl = document.getElementById("tool-export-control");
+    if (exportControl) exportControl.hidden = false;
   }
 </script>
 
