@@ -10,6 +10,8 @@ title: "ツール名"
 url: "https://example.com/"
 summary: "何ができて、どんなときに役立つツールなのかを紹介します。"
 added_date: "2026-11-18"
+published_date: "2026-11-01"
+author: "作者名"
 category:
   - "地図編集"
   - "地図閲覧"
@@ -20,7 +22,8 @@ draft: false
 
 必須: title、url（http/https）、summary
 新規登録時に必須: added_date（追加日、YYYY-MM-DD）
-任意: category（文字列の配列、複数指定可）、platforms（文字列の配列）、draft
+任意: published_date（ツールの公開日、YYYY-MM-DD）、author（作者名）、category（文字列の配列、複数指定可）、platforms（文字列の配列）、draft
+published_date と author は、記事紹介と同じヘッダー形式で種別・掲載日と並べて表示します。未指定なら表示しません。
 不明な任意項目は省略できます。category を省略すると「その他」になります。
 category は複数指定できます。指定した各カテゴリで絞り込め、「すべて」では1ツールにつき1件だけ表示します。
 category の選択肢:

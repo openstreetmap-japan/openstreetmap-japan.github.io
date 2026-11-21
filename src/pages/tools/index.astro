@@ -48,7 +48,12 @@ const categories = toolCategories.map((category) => ({
         {tools.map(({ data }) => (
           <li data-tool-categories={JSON.stringify(getCategories(data.category))} data-tool-title={data.title} data-tool-summary={data.summary} data-tool-url={data.url}>
             <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-              <p class="mb-2 text-xs text-gray-500">{getCategories(data.category).join(" / ")}</p>
+              <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-2">
+                <span>{getCategories(data.category).join(" / ")}</span>
+                {data.author && <span>著者: {data.author}</span>}
+                {data.published_date && <span>公開日: <time datetime={data.published_date}>{data.published_date}</time></span>}
+                {data.added_date && <span>掲載日: <time datetime={data.added_date}>{data.added_date}</time></span>}
+              </div>
               <h2 class="text-lg font-bold leading-snug break-words">
                 <a href={data.url} class="text-blue-700 hover:underline">{data.title} <span class="text-sm font-normal">↗</span><span class="sr-only">（外部サイト）</span></a>
               </h2>
