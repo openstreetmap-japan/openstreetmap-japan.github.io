@@ -1,14 +1,20 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { articleThumbnail } from "../lib/article-thumbnail.mjs";
 
 type Props = { articles: CollectionEntry<"articles">[] };
 const { articles } = Astro.props;
+const images = await Promise.all(articles.map(({ data }) => articleThumbnail(data.url)));
 ---
 
 <ul class="space-y-4">
-  {articles.map(({ data }) => (
-    <li data-article-category={data.category?.trim() || "その他"}>
-      <article class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
+  {articles.map(({ data }, index) => (
+    <li data-article-category={data.category?.trim() || "その他"} data-article-title={data.title} data-article-summary={data.summary} data-article-url={data.url}>
+      <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col sm:flex-row">
+        <a href={data.url} tabindex="-1" aria-hidden="true" class="sm:w-56 sm:shrink-0">
+          <img src={images[index]} data-article-thumbnail alt="" class="w-full h-44 sm:h-full object-cover bg-gray-100" loading="lazy" />
+        </a>
+        <div class="p-5 flex-1 min-w-0">
         <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-2">
           {data.category && <span>{data.category}</span>}
           {data.site && <span>{data.site}</span>}
@@ -20,7 +26,17 @@ const { articles } = Astro.props;
           <a href={data.url} class="text-blue-700 hover:underline">{data.title} <span class="text-sm font-normal">↗</span><span class="sr-only">（外部サイト）</span></a>
         </h2>
         <p class="mt-3 text-sm text-gray-700 leading-relaxed break-words">{data.summary}</p>
+        </div>
       </article>
     </li>
   ))}
 </ul>
+
+<script>
+  const fallback = "/images/assets/article-thumbnail.svg";
+  document.querySelectorAll<HTMLImageElement>("img[data-article-thumbnail]").forEach((img) => {
+    const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
+    img.addEventListener("error", useFallback);
+    if (img.complete && img.naturalWidth === 0) useFallback();
+  });
+</script>

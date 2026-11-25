@@ -19,6 +19,9 @@ const categories = [...categoryCounts].sort(([a], [b]) => a.localeCompare(b, "ja
   {articles.length > 0 ? (
     <>
       <div id="article-filters" hidden>
+        <label for="article-search" class="mb-2 block text-sm font-bold">キーワード検索</label>
+        <input id="article-search" type="search" placeholder="タイトル・サマリー・URLを検索" aria-controls="article-results" aria-describedby="article-search-help" class="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:outline-2 focus:outline-blue-700" />
+        <p id="article-search-help" class="mb-4 text-xs text-gray-600">スペースで区切ると、すべてのキーワードを含む記事を表示します。カテゴリと組み合わせて検索できます。</p>
         <div role="group" aria-label="記事のカテゴリで絞り込み" class="mb-3 flex flex-wrap gap-2">
           <button type="button" class="article-filter" data-filter-category="" aria-pressed="true" aria-controls="article-results">すべて（{articles.length}）</button>
           {categories.map(([category, count]) => (
@@ -27,6 +30,7 @@ const categories = [...categoryCounts].sort(([a], [b]) => a.localeCompare(b, "ja
         </div>
       </div>
       <p id="article-count" class="mb-4 text-sm text-gray-600" aria-live="polite" aria-atomic="true">{articles.length}件の記事</p>
+      <p id="article-empty" hidden class="mb-4 text-sm text-gray-600">条件に一致する記事はありません。キーワードやカテゴリを変更してください。</p>
       <div id="article-results">
         <ArticleList articles={articles} />
       </div>
@@ -40,22 +44,38 @@ const categories = [...categoryCounts].sort(([a], [b]) => a.localeCompare(b, "ja
   const filters = document.getElementById("article-filters");
   const results = document.getElementById("article-results");
   const count = document.getElementById("article-count");
+  const search = document.querySelector<HTMLInputElement>("#article-search");
+  const empty = document.getElementById("article-empty");
 
-  if (filters && results && count) {
+  if (filters && results && count && search && empty) {
+    const normalize = (value: string) => value.normalize("NFKC").toLocaleLowerCase("ja");
     const buttons = filters.querySelectorAll<HTMLButtonElement>("[data-filter-category]");
-    const items = results.querySelectorAll<HTMLLIElement>("[data-article-category]");
+    const items = [...results.querySelectorAll<HTMLLIElement>("[data-article-category]")].map((element) => ({
+      element,
+      category: element.dataset.articleCategory ?? "その他",
+      searchText: normalize([element.dataset.articleTitle, element.dataset.articleSummary, element.dataset.articleUrl].join("\n")),
+    }));
+    let category = "";
+    const update = () => {
+      const keywords = normalize(search.value).trim().split(/\s+/).filter(Boolean);
+      let visible = 0;
+      items.forEach((item) => {
+        item.element.hidden = (category !== "" && item.category !== category)
+          || !keywords.every((keyword) => item.searchText.includes(keyword));
+        if (!item.element.hidden) visible++;
+      });
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String((button.dataset.filterCategory ?? "") === category)));
+      count.textContent = `${visible}件の記事`;
+      empty.hidden = visible !== 0;
+    };
+    search.addEventListener("input", update);
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        const category = button.dataset.filterCategory ?? "";
-        let visible = 0;
-        items.forEach((item) => {
-          item.hidden = category !== "" && item.dataset.articleCategory !== category;
-          if (!item.hidden) visible++;
-        });
-        buttons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
-        count.textContent = `${visible}件の記事`;
+        category = button.dataset.filterCategory ?? "";
+        update();
       });
     });
+    update();
     filters.hidden = false;
   }
 </script>

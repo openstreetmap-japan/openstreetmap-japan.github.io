@@ -2,6 +2,7 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 import { eventTiming } from "../lib/event-time.mjs";
+import { articleThumbnail } from "../lib/article-thumbnail.mjs";
 
 type FeedItem = {
   kind: "event" | "page" | "tool" | "article";
@@ -83,7 +84,11 @@ const articles = (await getCollection("articles", ({ data }) => !data.draft)).ma
 }));
 const items: FeedItem[] = [...events.filter((event) => event.expires! > now), ...pages.filter((page) => page.date.getTime() > 0), ...tools, ...articles]
   .sort((a, b) => b.date.getTime() - a.date.getTime() || a.title.localeCompare(b.title, "ja"))
-  .slice(0, 15);
+  // Keep ongoing events even when their start date falls outside the recent items.
+  .filter((item, index) => index < 15 || item.kind === "event");
+await Promise.all(items.filter((item) => item.kind === "article").map(async (item) => {
+  item.hero_image = await articleThumbnail(item.href);
+}));
 const [featured, ...list] = items;
 const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツール紹介", article: "記事紹介" };
 ---
@@ -100,6 +105,7 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
         {featured.hero_image && (
           <img
             src={featured.hero_image}
+            data-article-thumbnail={featured.kind === "article" ? "" : undefined}
             alt=""
             class="w-full h-64 object-cover bg-gray-100"
             loading="eager"
@@ -134,6 +140,7 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
               <div class="sm:w-56 sm:flex-shrink-0">
                 <img
                   src={item.hero_image}
+                  data-article-thumbnail={item.kind === "article" ? "" : undefined}
                   alt=""
                   class="w-full h-44 sm:h-full object-cover bg-gray-100"
                   loading="lazy"
@@ -165,6 +172,7 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
 
   <div class="mt-6 text-center">
     <a href="/events/" class="inline-block px-3 py-2 text-sm text-blue-700 hover:underline">イベント・お知らせ一覧 →</a>
+    <a href="/notices/" class="inline-block px-3 py-2 text-sm text-blue-700 hover:underline">お知らせ一覧 →</a>
     <a href="/articles/" class="inline-block px-3 py-2 text-sm text-blue-700 hover:underline">記事一覧 →</a>
     <a href="/tools/" class="inline-block px-3 py-2 text-sm text-blue-700 hover:underline">ツール一覧 →</a>
   </div>
@@ -173,6 +181,12 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
 </SiteLayout>
 
 <script>
+  const fallback = "/images/assets/article-thumbnail.svg";
+  document.querySelectorAll<HTMLImageElement>("img[data-article-thumbnail]").forEach((img) => {
+    const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
+    img.addEventListener("error", useFallback);
+    if (img.complete && img.naturalWidth === 0) useFallback();
+  });
   // Static pages can outlive the build: expire events without requiring a new build.
   function updateUpcomingEvents() {
     const now = Date.now();
