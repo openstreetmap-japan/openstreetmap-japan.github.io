@@ -2,9 +2,11 @@
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 import { toolCategories } from "../../lib/tool-categories";
+import { articleThumbnail } from "../../lib/article-thumbnail.mjs";
 
 const tools = (await getCollection("tools", ({ data }) => !data.draft))
   .sort((a, b) => a.data.title.localeCompare(b.data.title, "ja") || a.id.localeCompare(b.id));
+const toolImages = await Promise.all(tools.map(({ data }) => articleThumbnail(data.url, fetch, "/images/assets/tool-thumbnail.svg")));
 const getCategories = (categories: readonly string[]) => categories.length > 0 ? categories : ["その他"];
 const categories = toolCategories.map((category) => ({
   category,
@@ -45,11 +47,11 @@ const categories = toolCategories.map((category) => ({
       <p id="tool-count" class="mb-4 text-sm text-gray-600" aria-live="polite" aria-atomic="true">{tools.length}件のツール・サービス</p>
       <p id="tool-empty" hidden class="mb-4 text-sm text-gray-600">条件に一致するツールはありません。キーワードやカテゴリを変更してください。</p>
       <ul id="tool-results" class="space-y-4">
-        {tools.map(({ data }) => (
+        {tools.map(({ data }, index) => (
           <li data-tool-categories={JSON.stringify(getCategories(data.category))} data-tool-title={data.title} data-tool-summary={data.summary} data-tool-url={data.url}>
             <article class="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm flex flex-col sm:flex-row">
               <a href={data.url} tabindex="-1" aria-hidden="true" class="sm:w-56 sm:shrink-0">
-                <img src="/images/assets/tool-thumbnail.svg" alt="" class="w-full h-44 sm:h-full object-cover bg-gray-100" loading="lazy" />
+                <img src={toolImages[index]} data-tool-thumbnail alt="" class="w-full h-44 sm:h-full object-cover bg-gray-100" loading="lazy" />
               </a>
               <div class="p-5 flex-1 min-w-0">
               <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-2">
@@ -78,6 +80,12 @@ const categories = toolCategories.map((category) => ({
 
 
 <script>
+  document.querySelectorAll<HTMLImageElement>("img[data-tool-thumbnail]").forEach((img) => {
+    const fallback = "/images/assets/tool-thumbnail.svg";
+    const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
+    img.addEventListener("error", useFallback);
+    if (img.complete && img.naturalWidth === 0) useFallback();
+  });
   const filters = document.getElementById("tool-filters");
   const results = document.getElementById("tool-results");
   const count = document.getElementById("tool-count");

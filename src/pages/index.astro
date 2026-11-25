@@ -86,8 +86,9 @@ const items: FeedItem[] = [...events.filter((event) => event.expires! > now), ..
   .sort((a, b) => b.date.getTime() - a.date.getTime() || a.title.localeCompare(b.title, "ja"))
   // Keep ongoing events even when their start date falls outside the recent items.
   .filter((item, index) => index < 15 || item.kind === "event");
-await Promise.all(items.filter((item) => item.kind === "article").map(async (item) => {
-  item.hero_image = await articleThumbnail(item.href);
+await Promise.all(items.filter((item) => item.kind === "article" || item.kind === "tool").map(async (item) => {
+  const fallback = item.kind === "tool" ? "/images/assets/tool-thumbnail.svg" : "/images/assets/article-thumbnail.svg";
+  item.hero_image = await articleThumbnail(item.href, fetch, fallback);
 }));
 const [featured, ...list] = items;
 const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツール紹介", article: "記事紹介" };
@@ -106,6 +107,7 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
           <img
             src={featured.hero_image}
             data-article-thumbnail={featured.kind === "article" ? "" : undefined}
+            data-tool-thumbnail={featured.kind === "tool" ? "" : undefined}
             alt=""
             class="w-full h-64 object-cover bg-gray-100"
             loading="eager"
@@ -141,6 +143,7 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
                 <img
                   src={item.hero_image}
                   data-article-thumbnail={item.kind === "article" ? "" : undefined}
+                  data-tool-thumbnail={item.kind === "tool" ? "" : undefined}
                   alt=""
                   class="w-full h-44 sm:h-full object-cover bg-gray-100"
                   loading="lazy"
@@ -183,6 +186,12 @@ const kindLabel = { event: "イベント", page: "お知らせ", tool: "ツー�
 <script>
   const fallback = "/images/assets/article-thumbnail.svg";
   document.querySelectorAll<HTMLImageElement>("img[data-article-thumbnail]").forEach((img) => {
+    const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
+    img.addEventListener("error", useFallback);
+    if (img.complete && img.naturalWidth === 0) useFallback();
+  });
+  document.querySelectorAll<HTMLImageElement>("img[data-tool-thumbnail]").forEach((img) => {
+    const fallback = "/images/assets/tool-thumbnail.svg";
     const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
     img.addEventListener("error", useFallback);
     if (img.complete && img.naturalWidth === 0) useFallback();

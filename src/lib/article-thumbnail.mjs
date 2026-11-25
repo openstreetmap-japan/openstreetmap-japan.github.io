@@ -1,7 +1,5 @@
-const fallback = "/images/assets/article-thumbnail.svg";
-
 // A failed or slow external site must not prevent a static site build.
-export async function articleThumbnail(url, fetchPage = fetch) {
+export async function articleThumbnail(url, fetchPage = fetch, fallback = "/images/assets/article-thumbnail.svg") {
   try {
     const response = await fetchPage(url, { signal: AbortSignal.timeout(4000), headers: { Accept: "text/html" } });
     if (!response.ok || !response.headers.get("content-type")?.includes("text/html")) return fallback;
