@@ -2,26 +2,104 @@
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import { getCollection } from "astro:content";
 
+function noticeCategory(title: string): string {
+  if (/Mappy Hour|(?:週刊|週間)OSMサマリー|月間OSMJサマリー|今月のOpenStreetMap Japan/i.test(title)) return "定期レポート";
+  if (/震災|地震|被災|災害|復興|sinsai\.info/i.test(title)) return "災害支援";
+  if (/State of the Map|\bSotM\b|マッピングパーティ|マッピング散策会/i.test(title)) return "イベント";
+  if (/サーバ.{0,8}(メンテナンス|アップグレード|切り替え|攻撃)|ウェブサイトを刷新|トップページの構成|ウェブサイトを更新/i.test(title)) return "サイト運営";
+  return "その他";
+}
 const notices = (await getCollection("pages", ({ data }) => !data.draft && !!data.legacy_node_id))
   .map((entry) => {
     const iso = entry.data.updated ?? entry.data.date;
     const timestamp = iso ? Date.parse(iso) : NaN;
-    return { ...entry, timestamp: Number.isFinite(timestamp) ? timestamp : 0 };
+    const summary = (entry.body ?? "")
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/<[^>]+>/g, "")
+      .replace(/[#>*_`~]/g, "")
+      .replace(/\s+/g, " ").trim();
+    return { ...entry, category: entry.data.category ?? noticeCategory(entry.data.title), summary: summary.length > 140 ? `${summary.slice(0, 140)}…` : summary, timestamp: Number.isFinite(timestamp) ? timestamp : 0 };
   })
   .sort((a, b) => b.timestamp - a.timestamp || b.id.localeCompare(a.id, "ja", { numeric: true }));
+const categoryCounts = new Map<string, number>();
+for (const { category } of notices) categoryCounts.set(category, (categoryCounts.get(category) ?? 0) + 1);
+const categories = [...categoryCounts].sort(([a], [b]) => a === "その他" ? 1 : b === "その他" ? -1 : a.localeCompare(b, "ja"));
 ---
 
 <SiteLayout title="お知らせ一覧 | OpenStreetMap Japan" description="OpenStreetMap Japanからのお知らせや活動紹介の一覧です。">
   <h1 class="text-2xl font-bold mb-4">お知らせ一覧</h1>
-  <p class="mb-4 text-sm text-gray-600">日付のあるお知らせは新しい順に表示しています。日付のない過去のページは最後に表示します。</p>
-  <ul class="space-y-4">
-    {notices.map(({ data, timestamp }) => (
-      <li>
-        <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-          {timestamp > 0 && <p class="mb-2 text-xs text-gray-500">{new Date(timestamp).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}</p>}
-          <h2 class="font-bold"><a href={`/node/${data.legacy_node_id}/`} class="text-blue-700 hover:underline">{data.title}</a></h2>
+  <p class="mb-6 text-sm text-gray-600">日付のあるお知らせは新しい順に表示しています。日付のない過去のページは最後に表示します。</p>
+  <div id="notice-filters" hidden>
+    <label for="notice-search" class="mb-2 block text-sm font-bold">キーワード検索</label>
+    <input id="notice-search" type="search" placeholder="タイトル・概要・URLを検索" aria-controls="notice-results" aria-describedby="notice-search-help" class="mb-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:outline-2 focus:outline-blue-700" />
+    <p id="notice-search-help" class="mb-4 text-xs text-gray-600">スペースで区切ると、すべてのキーワードを含むお知らせを表示します。カテゴリと組み合わせて検索できます。</p>
+    <div role="group" aria-label="お知らせのカテゴリで絞り込み" class="mb-3 flex flex-wrap gap-2">
+      <button type="button" class="notice-filter" data-filter-category="" aria-pressed="true" aria-controls="notice-results">すべて（{notices.length}）</button>
+      {categories.map(([category, count]) => <button type="button" class="notice-filter" data-filter-category={category} aria-pressed="false" aria-controls="notice-results">{category}（{count}）</button>)}
+    </div>
+  </div>
+  <p id="notice-count" class="mb-4 text-sm text-gray-600" aria-live="polite" aria-atomic="true">{notices.length}件のお知らせ</p>
+  <p id="notice-empty" hidden class="mb-4 text-sm text-gray-600">条件に一致するお知らせはありません。キーワードやカテゴリを変更してください。</p>
+  <ul id="notice-results" class="space-y-4">
+    {notices.map(({ data, category, timestamp, summary }) => (
+      <li data-notice-category={category} data-notice-title={data.title} data-notice-summary={summary} data-notice-url={`/node/${data.legacy_node_id}/`}>
+        <article class="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm flex flex-col sm:flex-row">
+          <a href={`/node/${data.legacy_node_id}/`} tabindex="-1" aria-hidden="true" class="sm:w-56 sm:shrink-0">
+            <img src={data.hero_image || "/images/assets/article-thumbnail.svg"} data-notice-thumbnail alt="" class="w-full h-44 sm:h-full object-cover bg-gray-100" loading="lazy" />
+          </a>
+          <div class="p-5 flex-1 min-w-0">
+            <p class="mb-2 text-xs text-gray-500">{category}{timestamp > 0 && <> ・ {new Date(timestamp).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}</>}</p>
+            <h2 class="text-lg font-bold leading-snug break-words"><a href={`/node/${data.legacy_node_id}/`} class="text-blue-700 hover:underline">{data.title}</a></h2>
+            {summary && <p class="mt-3 text-sm text-gray-700 leading-relaxed break-words">{summary}</p>}
+          </div>
         </article>
       </li>
     ))}
   </ul>
 </SiteLayout>
+
+<script>
+  const filters = document.getElementById("notice-filters");
+  const search = document.querySelector<HTMLInputElement>("#notice-search");
+  const results = document.getElementById("notice-results");
+  const count = document.getElementById("notice-count");
+  const empty = document.getElementById("notice-empty");
+  if (filters && search && results && count && empty) {
+    const normalize = (value: string) => value.normalize("NFKC").toLocaleLowerCase("ja");
+    const buttons = filters.querySelectorAll<HTMLButtonElement>("[data-filter-category]");
+    const items = [...results.querySelectorAll<HTMLLIElement>("[data-notice-title]")].map((element) => ({
+      element,
+      category: element.dataset.noticeCategory ?? "その他",
+      text: normalize([element.dataset.noticeTitle, element.dataset.noticeSummary, element.dataset.noticeUrl].join("\n")),
+    }));
+    let category = "";
+    const update = () => {
+      const words = normalize(search.value).trim().split(/\s+/).filter(Boolean);
+      let visible = 0;
+      items.forEach((item) => {
+        item.element.hidden = (category !== "" && item.category !== category) || !words.every((word) => item.text.includes(word));
+        if (!item.element.hidden) visible++;
+      });
+      count.textContent = `${visible}件のお知らせ`;
+      empty.hidden = visible !== 0;
+      buttons.forEach((button) => button.setAttribute("aria-pressed", String((button.dataset.filterCategory ?? "") === category)));
+    };
+    search.addEventListener("input", update);
+    buttons.forEach((button) => button.addEventListener("click", () => { category = button.dataset.filterCategory ?? ""; update(); }));
+    update();
+    filters.hidden = false;
+  }
+  document.querySelectorAll<HTMLImageElement>("img[data-notice-thumbnail]").forEach((img) => {
+    const fallback = "/images/assets/article-thumbnail.svg";
+    const useFallback = () => { if (!img.src.endsWith(fallback)) img.src = fallback; };
+    img.addEventListener("error", useFallback);
+    if (img.complete && img.naturalWidth === 0) useFallback();
+  });
+</script>
+
+<style>
+  .notice-filter { min-height: 44px; padding: .5rem .875rem; border: 1px solid #d1d5db; border-radius: 9999px; background: white; color: #374151; font-size: .875rem; cursor: pointer; }
+  .notice-filter[aria-pressed="true"] { border-color: #1d4ed8; background: #1d4ed8; color: white; }
+  .notice-filter:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+</style>

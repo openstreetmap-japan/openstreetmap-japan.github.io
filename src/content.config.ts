@@ -59,6 +59,9 @@ export const pages = defineCollection({
         // 旧 Drupal の /node/xxx を受けるためのID
         legacy_node_id: z.string().optional(),
 
+        // お知らせ一覧用。未指定の旧ページはタイトルをもとに分類する。
+        category: z.string().trim().min(1).optional(),
+
         // ナビ表示順など (任意)
         order: z.number().optional(),
 
